@@ -1,14 +1,1152 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>이 바지에 뭐입지?</title>
+
+  <style>
+    :root{
+      --bgA:#f7f8fb;
+      --bgB:#eef2ff;
+      --card:#ffffff;
+      --stroke: rgba(15, 23, 42, .10);
+      --stroke2: rgba(15, 23, 42, .16);
+
+      --text: rgba(15, 23, 42, .92);
+      --muted: rgba(15, 23, 42, .62);
+
+      --shadow: 0 18px 50px rgba(15, 23, 42, .10);
+      --shadow2: 0 10px 24px rgba(15, 23, 42, .08);
+      --radius: 22px;
+
+      /* 강조용 */
+      --accent: #4f46e5;
+      --accent2:#60a5fa;
+      --warnBg: rgba(79,70,229,.08);
+      --warnBorder: rgba(79,70,229,.22);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 12% 0%, rgba(99,102,241,.18), transparent 55%),
+        radial-gradient(780px 520px at 80% 10%, rgba(16,185,129,.14), transparent 55%),
+        radial-gradient(900px 650px at 60% 100%, rgba(236,72,153,.12), transparent 60%),
+        linear-gradient(180deg, var(--bgA) 0%, var(--bgB) 60%, var(--bgA) 100%);
+      padding: 26px 18px 40px;
+    }
+
+    /* fireworks canvas */
+    #fxCanvas{
+      position:fixed;
+      inset:0;
+      width:100vw;
+      height:100vh;
+      pointer-events:none;
+      z-index:9999;
+    }
+
+    .shell{
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero{
+      padding: 18px 18px 14px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .hero h1{
+      margin:0;
+      text-align:center;
+      font-size: 34px;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .hero .sub{
+      margin-top: 8px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      padding: 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .panelHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap:wrap;
+    }
+    .panelTitle{
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      font-size: 15px;
+    }
+    .meta{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+      align-items:center;
+    }
+    .pill{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .05);
+      border: 1px solid var(--stroke);
+      color: rgba(15, 23, 42, .78);
+    }
+
+    /* LEFT */
+    .outfitWrap{ display:grid; gap: 14px; }
+
+    .outfitCard{
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.82));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .outfitTopRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .hint{
+      color: rgba(15, 23, 42, .70);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .outfitGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items:center;
+    }
+    @media (max-width: 520px){
+      .outfitGrid{ grid-template-columns: 1fr; }
+    }
+
+    .figure{
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .03);
+      border: 1px solid var(--stroke);
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .legend{
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .03);
+      border: 1px solid var(--stroke);
+      padding: 12px;
+      display:grid;
+      gap: 12px;
+    }
+
+    .legendItem{ display:grid; gap: 6px; }
+    .legendTop{ display:flex; align-items:center; gap: 10px; flex-wrap:wrap; }
+
+    .badgeIcon{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid var(--stroke);
+      font-size: 12px;
+      color: rgba(15, 23, 42, .90);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
+    }
+    .badgeIcon b{ font-weight: 950; }
+
+    .legendMsg{
+      color: rgba(15, 23, 42, .70);
+      font-size: 12px;
+      line-height: 1.45;
+      padding-left: 6px;
+    }
+
+    .iconImg{
+      width: 16px;
+      height: 16px;
+      display:inline-block;
+      vertical-align:-3px;
+    }
+
+    /* RIGHT */
+    .choices{ display:grid; gap: 12px; }
+    .selectRow{ display:grid; gap: 10px; }
+
+    .pantsButtons{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 520px){
+      .pantsButtons{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius: 16px;
+      padding: 12px 12px;
+      font-weight: 950;
+      letter-spacing: -0.01em;
+      color: rgba(15, 23, 42, .92);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.82));
+      border: 1px solid var(--stroke);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+      transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      position: relative;
+    }
+    .btn:hover{ border-color: var(--stroke2); }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn.primary{
+      color: rgba(255,255,255,.96);
+      background: linear-gradient(135deg, rgba(99,102,241,.95), rgba(59,130,246,.90));
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 16px 36px rgba(59,130,246,.18);
+    }
+
+    .swatch{
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(15, 23, 42, .16);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, .08);
+      flex: 0 0 auto;
+    }
+
+    /* ✅ 시작 시 "하의 먼저" 강조 */
+    .pantsPickBanner{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(79,70,229,.10), rgba(79,70,229,.06));
+      border: 1px solid var(--warnBorder);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+    }
+    .pantsPickBanner.show{ display:flex; }
+    .pantsPickBanner .left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .pantsPickBanner .dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(79,70,229,.12);
+    }
+    .pantsPickBanner b{
+      font-weight: 950;
+      letter-spacing: -0.01em;
+      font-size: 13px;
+      color: rgba(15,23,42,.92);
+    }
+    .pantsPickBanner span{
+      font-size: 12px;
+      color: rgba(15,23,42,.62);
+    }
+    .pantsPickBanner button{
+      border: 0;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-weight: 900;
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--warnBorder);
+      color: rgba(15,23,42,.85);
+    }
+
+    /* ✅ 하의 버튼들 "깜빡임/테두리" 유도 */
+    .pantsButtons.attention .btn{
+      animation: pantsPulse 1.15s ease-in-out infinite;
+      border-color: var(--warnBorder);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22);
+    }
+    .pantsButtons.attention .btn:nth-child(2){ animation-delay: .05s; }
+    .pantsButtons.attention .btn:nth-child(3){ animation-delay: .10s; }
+    .pantsButtons.attention .btn:nth-child(4){ animation-delay: .15s; }
+    .pantsButtons.attention .btn:nth-child(5){ animation-delay: .20s; }
+
+    @keyframes pantsPulse{
+      0%   { transform: translateY(0); box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22); }
+      50%  { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(15, 23, 42, .08), 0 0 0 6px rgba(79,70,229,.12); }
+      100% { transform: translateY(0); box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22); }
+    }
+
+    /* ✅ 오른쪽 패널 제목 줄도 강조(선택 전) */
+    .needsPants .panelTitle.pantsTitle{
+      color: rgba(79,70,229,.95);
+    }
+    .needsPants .panelTitle.pantsTitle::after{
+      content:"  (먼저 선택)";
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(79,70,229,.75);
+      margin-left: 6px;
+    }
+
+    .resultSection{
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(15, 23, 42, .03);
+      border: 1px solid var(--stroke);
+      display:grid;
+      gap: 10px;
+    }
+
+    .resultHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .resultHead strong{
+      font-size: 13px;
+      letter-spacing:-0.01em;
+    }
+    .muted{ color: var(--muted); font-size: 12px; }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+
+    .chip{
+      cursor:pointer;
+      user-select:none;
+      border-radius: 14px;
+      padding: 9px 10px;
+      border: 1px solid rgba(15, 23, 42, .12);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+      font-weight: 900;
+      letter-spacing:-0.01em;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+    }
+    .chip:hover{ transform: translateY(-1px); border-color: rgba(15, 23, 42, .22); }
+    .chip:active{ transform: translateY(1px) scale(.99); }
+
+    .chip .mark{
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15, 23, 42, .12);
+    }
+    .chip .mark img{
+      width: 15px;
+      height: 15px;
+      display:block;
+    }
+
+    .callout{
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
+      border: 1px solid var(--stroke);
+      color: rgba(15, 23, 42, .86);
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    }
+
+    /* toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--stroke);
+      color: rgba(15, 23, 42, .92);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      display:none;
+      z-index: 10000;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .toast.show{ display:block; animation: toast .18s ease both; }
+    @keyframes toast{
+      from{ transform: translateX(-50%) translateY(6px); opacity:0; }
+      to{ transform: translateX(-50%) translateY(0); opacity:1; }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="shell">
+    <section class="hero">
+      <h1>이 바지에 뭐입지?</h1>
+      <div class="sub">하의 색을 고르면, 추천 상의(1~2개) + 비추(1~2개) + 대안(그닥)을 보여드립니다. 색을 클릭하면 왼쪽 상의가 바로 칠해집니다.</div>
+    </section>
+
+    <section class="grid">
+      <!-- LEFT -->
+      <section class="panel">
+        <div class="panelHead">
+          <div class="panelTitle">미리보기 (상의/하의)</div>
+          <div class="meta">
+            <span class="pill" id="statePill">하의 선택: 아직</span>
+            <span class="pill" id="shirtPill">상의 선택: 아직</span>
+          </div>
+        </div>
+
+        <div class="outfitWrap">
+          <div class="outfitCard">
+            <div class="outfitTopRow">
+              <div class="hint">
+                1) 오른쪽에서 <b>하의 색</b>을 먼저 선택하세요.<br/>
+                2) 추천/비추/그닥 색을 <b>클릭</b>하면 상의가 채워지고 멘트가 바뀝니다.
+              </div>
+              <button class="btn primary" id="btnBoom" type="button">생성하기 🎉</button>
+            </div>
+
+            <div class="outfitGrid">
+              <div class="figure" aria-label="상의/하의 그림">
+                <!-- 5:5 비율(상/하 높이 동일) -->
+                <svg id="outfitSvg" width="360" height="320" viewBox="0 0 360 320" role="img" aria-label="상의와 하의">
+                  <defs>
+                    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+                      <feGaussianBlur stdDeviation="5" result="blur"/>
+                      <feMerge>
+                        <feMergeNode in="blur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  <!-- TOP -->
+                  <g transform="translate(40,18)">
+                    <path id="shirtFill"
+                      d="M92 34
+                         C105 12, 128 2, 156 2
+                         C184 2, 207 12, 220 34
+                         L250 48
+                         L236 86
+                         L215 78
+                         L215 150
+                         L97 150
+                         L97 78
+                         L76 86
+                         L62 48
+                         Z"
+                      fill="transparent"
+                      filter="url(#softGlow)"/>
+                    <path
+                      d="M92 34
+                         C105 12, 128 2, 156 2
+                         C184 2, 207 12, 220 34
+                         L250 48
+                         L236 86
+                         L215 78
+                         L215 150
+                         L97 150
+                         L97 78
+                         L76 86
+                         L62 48
+                         Z"
+                      fill="none"
+                      stroke="rgba(15,23,42,.70)"
+                      stroke-width="3"
+                      stroke-linejoin="round"/>
+                    <text x="156" y="176" text-anchor="middle" fill="rgba(15,23,42,.55)" font-size="14" font-weight="800">TOP</text>
+                  </g>
+
+                  <!-- PANTS -->
+                  <g transform="translate(40,168)">
+                    <path id="pantsFill"
+                      d="M118 6
+                         L194 6
+                         L208 140
+                         L170 140
+                         L156 74
+                         L142 140
+                         L104 140
+                         Z"
+                      fill="transparent"
+                      filter="url(#softGlow)"/>
+                    <path
+                      d="M118 6
+                         L194 6
+                         L208 140
+                         L170 140
+                         L156 74
+                         L142 140
+                         L104 140
+                         Z"
+                      fill="none"
+                      stroke="rgba(15,23,42,.70)"
+                      stroke-width="3"
+                      stroke-linejoin="round"/>
+                    <text x="156" y="170" text-anchor="middle" fill="rgba(15,23,42,.55)" font-size="14" font-weight="800">PANTS</text>
+                  </g>
+                </svg>
+              </div>
+
+              <div class="legend" aria-label="강추/괜찮음/그닥/비추 안내">
+                <div class="legendItem">
+                  <div class="legendTop">
+                    <span class="badgeIcon">
+                      <img class="iconImg" id="legendHeart" alt="하트 아이콘" />
+                      <b>강추</b>
+                    </span>
+                  </div>
+                  <div class="legendMsg">오늘 각이다</div>
+                </div>
+
+                <div class="legendItem">
+                  <div class="legendTop">
+                    <span class="badgeIcon">
+                      <img class="iconImg" id="legendCircle" alt="동그라미 아이콘" />
+                      <b>괜찮음</b>
+                    </span>
+                  </div>
+                  <div class="legendMsg">낫 밷</div>
+                </div>
+
+                <div class="legendItem">
+                  <div class="legendTop">
+                    <span class="badgeIcon">
+                      <img class="iconImg" id="legendTriangle" alt="세모 아이콘" />
+                      <b>그닥</b>
+                    </span>
+                  </div>
+                  <div class="legendMsg">상대방 반응 체크하자</div>
+                </div>
+
+                <div class="legendItem">
+                  <div class="legendTop">
+                    <span class="badgeIcon">
+                      <img class="iconImg" id="legendX" alt="엑스 아이콘" />
+                      <b>비추</b>
+                    </span>
+                  </div>
+                  <div class="legendMsg">와 요즘은 콘돔이 이렇게도 나오네</div>
+                </div>
+
+                <div class="callout" id="statusCallout">
+                  하의 색을 먼저 선택해 주세요. 선택하면 오른쪽에 추천/비추/그닥 색이 나타납니다.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT -->
+      <section class="panel" id="rightPanel">
+        <div class="panelHead">
+          <div class="panelTitle">컬러 선택</div>
+          <div class="meta">
+            <span>오른쪽에서 하의 → 추천/비추/그닥 색 클릭</span>
+          </div>
+        </div>
+
+        <div class="choices">
+          <!-- ✅ 시작 안내 배너(하의 선택 전만 표시) -->
+          <div class="pantsPickBanner show" id="pantsPickBanner" role="note" aria-live="polite">
+            <div class="left">
+              <span class="dot" aria-hidden="true"></span>
+              <div style="display:grid; gap:2px;">
+                <b>먼저 하의 색부터 선택하세요</b>
+                <span>하의를 고르면 추천 상의가 열립니다.</span>
+              </div>
+            </div>
+            <button type="button" id="btnFocusPants">여기부터</button>
+          </div>
+
+          <div class="selectRow">
+            <div class="panelTitle pantsTitle" id="pantsTitle" style="font-size:13px; opacity:.9;">1) 하의 색 (5가지)</div>
+            <div class="pantsButtons attention" id="pantsButtons"></div>
+          </div>
+
+          <div class="resultSection">
+            <div class="resultHead">
+              <strong>2) 추천 컬러 (1~2개)</strong>
+              <span class="muted">클릭하면 상의에 적용</span>
+            </div>
+            <div class="chips" id="goodChips"></div>
+          </div>
+
+          <div class="resultSection">
+            <div class="resultHead">
+              <strong>3) 비추 컬러 (1~2개)</strong>
+              <span class="muted">피하시면 편안합니다</span>
+            </div>
+            <div class="chips" id="badChips"></div>
+          </div>
+
+          <div class="resultSection">
+            <div class="resultHead">
+              <strong>4) 대안 (그닥)</strong>
+              <span class="muted">대안 없으면…</span>
+            </div>
+            <div class="chips" id="mehChips"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // =========================================================
+    // 팔레트(네온X, 다운톤)
+    // =========================================================
+    const COLORS = {
+      "녹색":   { hex:"#2F7D57" },
+      "파란색": { hex:"#2F5FAF" },
+      "노란색": { hex:"#D7A63A" },
+      "핑크":   { hex:"#D08AAA" },
+      "네이비": { hex:"#1D2B5B" },
+      "흰색":   { hex:"#F3F4F6" },
+      "진청":   { hex:"#1F3B6F" },
+      "연청":   { hex:"#82A9D6" },
+      "베이지": { hex:"#C7B08B" },
+      "차콜":   { hex:"#3A3C43" },
+      "검정":   { hex:"#111318" },
+    };
+
+    // =========================================================
+    // 아이콘(이미지) - inline SVG data URI
+    // =========================================================
+    function svgDataUri(svg){
+      const encoded = encodeURIComponent(svg)
+        .replace(/'/g, "%27")
+        .replace(/"/g, "%22");
+      return `data:image/svg+xml;charset=utf-8,${encoded}`;
+    }
+    const ICON = {
+      heart: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M12 21s-7.2-4.6-9.6-8.9C.7 8.7 2.4 5.6 5.6 5.1c1.8-.3 3.4.6 4.4 1.8
+                   1-1.2 2.6-2.1 4.4-1.8 3.2.5 4.9 3.6 3.2 7C19.2 16.4 12 21 12 21z"
+                fill="#E11D48"/>
+          <path d="M12 21s-7.2-4.6-9.6-8.9C.7 8.7 2.4 5.6 5.6 5.1c1.8-.3 3.4.6 4.4 1.8
+                   1-1.2 2.6-2.1 4.4-1.8 3.2.5 4.9 3.6 3.2 7C19.2 16.4 12 21 12 21z"
+                fill="none" stroke="rgba(0,0,0,.22)" stroke-width="1.2"/>
+        </svg>
+      `),
+      circle: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8.5" fill="#ffffff" />
+          <circle cx="12" cy="12" r="8.5" fill="none" stroke="#111827" stroke-width="2.4"/>
+        </svg>
+      `),
+      triangle: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M12 5.3 L20 19 H4 Z" fill="#ffffff" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/>
+        </svg>
+      `),
+      x: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M6.5 6.5 L17.5 17.5" stroke="#DC2626" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M17.5 6.5 L6.5 17.5" stroke="#DC2626" stroke-width="3.2" stroke-linecap="round"/>
+        </svg>
+      `),
+    };
+
+    const GRADE = {
+      "강추": { icon: ICON.heart, phrase: "오늘 각이다" },
+      "괜찮음": { icon: ICON.circle, phrase: "낫 밷" },
+      "그닥": { icon: ICON.triangle, phrase: "상대방 반응 체크하자" },
+      "비추": { icon: ICON.x, phrase: "와 요즘은 콘돔이 이렇게도 나오네" },
+    };
+
+    // legend 아이콘 세팅
+    document.getElementById("legendHeart").src = ICON.heart;
+    document.getElementById("legendCircle").src = ICON.circle;
+    document.getElementById("legendTriangle").src = ICON.triangle;
+    document.getElementById("legendX").src = ICON.x;
+
+    // =========================================================
+    // 룰 데이터
+    // =========================================================
+    const RULES = {
+      "진청": {
+        good: [
+          { color:"파란색", grade:"강추" },
+          { color:"노란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"네이비", grade:"비추" }
+        ],
+        meh: [
+          { color:"핑크", grade:"괜찮음" },
+          { color:"흰색", grade:"강추" }
+        ]
+      },
+      "연청": {
+        good: [
+          { color:"녹색", grade:"강추" },
+          { color:"흰색", grade:"강추" }
+        ],
+        bad: [
+          { color:"노란색", grade:"비추" }
+        ],
+        meh: [
+          { color:"파란색", grade:"그닥" },
+          { color:"네이비", grade:"괜찮음" }
+        ]
+      },
+      "베이지": {
+        good: [
+          { color:"네이비", grade:"강추" },
+          { color:"흰색", grade:"강추" }
+        ],
+        bad: [
+          { color:"핑크", grade:"그닥" },
+          { color:"노란색", grade:"그닥" }
+        ],
+        meh: [
+          { color:"녹색", grade:"괜찮음" },
+          { color:"파란색", grade:"괜찮음" }
+        ]
+      },
+      "차콜": {
+        good: [
+          { color:"네이비", grade:"강추" },
+          { color:"노란색", grade:"괜찮음" }
+        ],
+        bad: [
+          { color:"녹색", grade:"비추" },
+          { color:"파란색", grade:"비추" }
+        ],
+        meh: [
+          { color:"핑크", grade:"그닥" },
+          { color:"흰색", grade:"괜찮음" }
+        ]
+      },
+      "검정": {
+        good: [
+          { color:"흰색", grade:"강추" },
+          { color:"노란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"네이비", grade:"그닥" },
+          { color:"녹색", grade:"그닥" }
+        ],
+        meh: [
+          { color:"파란색", grade:"괜찮음" },
+          { color:"핑크", grade:"괜찮음" }
+        ]
+      }
+    };
+
+    // =========================================================
+    // 엘리먼트
+    // =========================================================
+    const pantsButtonsEl = document.getElementById("pantsButtons");
+    const goodChipsEl = document.getElementById("goodChips");
+    const badChipsEl  = document.getElementById("badChips");
+    const mehChipsEl  = document.getElementById("mehChips");
+
+    const pantsFill = document.getElementById("pantsFill");
+    const shirtFill = document.getElementById("shirtFill");
+
+    const statePill = document.getElementById("statePill");
+    const shirtPill = document.getElementById("shirtPill");
+    const statusCallout = document.getElementById("statusCallout");
+
+    const pantsPickBanner = document.getElementById("pantsPickBanner");
+    const btnFocusPants = document.getElementById("btnFocusPants");
+    const pantsTitle = document.getElementById("pantsTitle");
+    const rightPanel = document.getElementById("rightPanel");
+
+    // =========================================================
+    // Toast
+    // =========================================================
+    let toastTimer = null;
+    function showToast(msg){
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> t.classList.remove("show"), 1400);
+    }
+
+    // =========================================================
+    // 대비 계산
+    // =========================================================
+    function hexToRgb(hex){
+      const h = hex.replace("#","").trim();
+      const full = h.length===3 ? h.split("").map(c=>c+c).join("") : h;
+      const n = parseInt(full, 16);
+      return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+    }
+    function relLuminance(hex){
+      const {r,g,b} = hexToRgb(hex);
+      const srgb = [r,g,b].map(v=>{
+        const c = v/255;
+        return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+      });
+      return 0.2126*srgb[0] + 0.7152*srgb[1] + 0.0722*srgb[2];
+    }
+    function isDark(hex){ return relLuminance(hex) < 0.42; }
+
+    function chipStyle(hex){
+      const dark = isDark(hex);
+      return {
+        text: dark ? "rgba(255,255,255,.94)" : "rgba(15,23,42,.92)",
+        border: dark ? "rgba(255,255,255,.22)" : "rgba(15,23,42,.14)",
+        markBg: "rgba(255,255,255,.92)",
+        bgTop: hex,
+        bgBottom: hex + "cc"
+      };
+    }
+
+    // =========================================================
+    // ✅ "하의 먼저" 상태 관리 (핵심 추가)
+    // =========================================================
+    function setNeedsPants(on){
+      // 오른쪽 영역 강조
+      if (on){
+        pantsPickBanner.classList.add("show");
+        pantsButtonsEl.classList.add("attention");
+        rightPanel.classList.add("needsPants");
+        // 접근성: 초반에 살짝 안내 토스트
+        showToast("먼저 하의 색부터 선택하세요");
+      }else{
+        pantsPickBanner.classList.remove("show");
+        pantsButtonsEl.classList.remove("attention");
+        rightPanel.classList.remove("needsPants");
+      }
+    }
+
+    btnFocusPants.addEventListener("click", ()=>{
+      // 하의 버튼 영역으로 시선/포커스 이동
+      pantsTitle.scrollIntoView({ behavior:"smooth", block:"center" });
+      // 첫 버튼에 포커스
+      const firstBtn = pantsButtonsEl.querySelector("button");
+      if (firstBtn) firstBtn.focus({ preventScroll:true });
+    });
+
+    // =========================================================
+    // UI 렌더링
+    // =========================================================
+    const PANTS = ["진청","연청","베이지","차콜","검정"];
+    let selectedPants = null;
+    let selectedShirt = null;
+
+    function makePantsButtons(){
+      pantsButtonsEl.innerHTML = "";
+      PANTS.forEach(name=>{
+        const b = document.createElement("button");
+        b.className = "btn";
+        b.type = "button";
+        b.innerHTML = `<span>${name}</span><span class="swatch" style="background:${COLORS[name].hex}"></span>`;
+        b.addEventListener("click", ()=> selectPants(name));
+        pantsButtonsEl.appendChild(b);
+      });
+    }
+
+    function renderChips(el, items){
+      el.innerHTML = "";
+      if (!selectedPants){
+        el.innerHTML = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+        return;
+      }
+      if (!items || items.length === 0){
+        el.innerHTML = `<div class="muted">없음</div>`;
+        return;
+      }
+
+      items.slice(0,2).forEach(it=>{
+        const hex = COLORS[it.color].hex;
+        const s = chipStyle(hex);
+
+        const c = document.createElement("div");
+        c.className = "chip";
+        c.setAttribute("role","button");
+        c.setAttribute("tabindex","0");
+
+        c.style.background = `linear-gradient(180deg, ${s.bgTop}, ${s.bgBottom})`;
+        c.style.color = s.text;
+        c.style.borderColor = s.border;
+
+        const iconSrc = (GRADE[it.grade] && GRADE[it.grade].icon) ? GRADE[it.grade].icon : ICON.circle;
+
+        c.innerHTML = `
+          <span class="mark" style="background:${s.markBg}">
+            <img src="${iconSrc}" alt="${it.grade} 아이콘"/>
+          </span>
+          <span>${it.color}</span>
+        `;
+
+        const apply = ()=> applyShirt(it.color, it.grade);
+        c.addEventListener("click", apply);
+        c.addEventListener("keydown", (e)=>{
+          if (e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            apply();
+          }
+        });
+
+        el.appendChild(c);
+      });
+    }
+
+    function selectPants(name){
+      selectedPants = name;
+      statePill.textContent = "하의 선택: " + name;
+      pantsFill.setAttribute("fill", COLORS[name].hex);
+
+      selectedShirt = null;
+      shirtFill.setAttribute("fill", "transparent");
+      shirtPill.textContent = "상의 선택: 아직";
+
+      // ✅ 하의 선택되면 강조 해제
+      setNeedsPants(false);
+
+      const r = RULES[name];
+      renderChips(goodChipsEl, r.good);
+      let badList = (r.bad && r.bad.length) ? r.bad : [];
+      if (!badList.length && r.meh && r.meh.length) badList = r.meh.slice(0,2);
+      renderChips(badChipsEl, badList);
+      renderChips(mehChipsEl, r.meh || []);
+
+      statusCallout.innerHTML = `
+        지금 하의는 <b>${name}</b>입니다.<br/>
+        오른쪽에서 상의 컬러를 <b>클릭</b>하면 조합 멘트가 표시됩니다.
+      `;
+      showToast(`${name} 하의 선택 ✅`);
+    }
+
+    function applyShirt(colorName, grade){
+      selectedShirt = colorName;
+      shirtFill.setAttribute("fill", COLORS[colorName].hex);
+      shirtPill.textContent = "상의 선택: " + colorName;
+
+      const iconSrc = (GRADE[grade] && GRADE[grade].icon) ? GRADE[grade].icon : ICON.circle;
+      const phrase = (GRADE[grade] && GRADE[grade].phrase) ? GRADE[grade].phrase : "";
+
+      statusCallout.innerHTML = `
+        <div style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+          <span class="badgeIcon">
+            <img class="iconImg" src="${iconSrc}" alt="${grade} 아이콘" />
+            <b>${grade}</b>
+          </span>
+          <div style="display:grid; gap:4px;">
+            <div style="color: rgba(15,23,42,.86); font-size:12px; line-height:1.4;">
+              <b>${selectedPants}</b> + <b>${colorName}</b>
+            </div>
+            <div style="color: rgba(15,23,42,.70); font-size:12px; line-height:1.45;">
+              ${phrase}
+            </div>
+          </div>
+        </div>
+      `;
+      showToast(`상의 ${colorName} 적용!`);
+    }
+
+    // =========================================================
+    // 폭죽 + 소리 (원래 기능 유지)
+    // =========================================================
+    const fxCanvas = document.getElementById("fxCanvas");
+    const fxCtx = fxCanvas.getContext("2d");
+    let viewport = { w: 0, h: 0 };
+
+    function fitFxCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      viewport.w = window.innerWidth;
+      viewport.h = window.innerHeight;
+      fxCanvas.width = Math.floor(viewport.w * dpr);
+      fxCanvas.height = Math.floor(viewport.h * dpr);
+      fxCanvas.style.width = viewport.w + "px";
+      fxCanvas.style.height = viewport.h + "px";
+      fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener("resize", fitFxCanvas);
+    fitFxCanvas();
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    let audioCtx = null;
+    function playPop(){
+      try{
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const t0 = audioCtx.currentTime;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(520, t0);
+        osc.frequency.exponentialRampToValueAtTime(180, t0 + 0.08);
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.exponentialRampToValueAtTime(0.30, t0 + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.14);
+
+        const bufferSize = 2 * audioCtx.sampleRate;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * 0.18;
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+
+        const nGain = audioCtx.createGain();
+        nGain.gain.setValueAtTime(0.0001, t0);
+        nGain.gain.exponentialRampToValueAtTime(0.12, t0 + 0.02);
+        nGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(900, t0);
+
+        noise.connect(filter).connect(nGain).connect(audioCtx.destination);
+        noise.start(t0);
+        noise.stop(t0 + 0.24);
+      }catch(e){}
+    }
+
+    function fireworks(){
+      const bursts = 6;
+      const totalParticlesPerBurst = 220;
+      const gravity = 0.18;
+      const drag = 0.992;
+
+      let particles = [];
+      for (let b=0;b<bursts;b++){
+        const cx = rand(viewport.w*0.15, viewport.w*0.85);
+        const cy = rand(viewport.h*0.15, viewport.h*0.65);
+        for (let i=0;i<totalParticlesPerBurst;i++){
+          const a = rand(0, Math.PI*2);
+          const s = rand(4.5, 12.5);
+          particles.push({
+            x: cx, y: cy,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s - rand(2, 8),
+            r: rand(1.8, 3.8),
+            life: rand(60, 115),
+            hue: rand(0, 360),
+          });
+        }
+      }
+
+      function tick(){
+        fxCtx.clearRect(0,0,viewport.w,viewport.h);
+
+        let alive = 0;
+        for (const p of particles){
+          if (p.life <= 0) continue;
+          alive++;
+
+          p.vx *= drag;
+          p.vy = p.vy * drag + gravity;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 1;
+
+          const a = Math.max(0, p.life / 120);
+          fxCtx.globalAlpha = a;
+
+          fxCtx.beginPath();
+          fxCtx.fillStyle = `hsl(${p.hue}, 85%, 60%)`;
+          fxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+          fxCtx.fill();
+        }
+
+        if (alive > 0) requestAnimationFrame(tick);
+        else fxCtx.clearRect(0,0,viewport.w,viewport.h);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    document.getElementById("btnBoom").addEventListener("click", ()=>{
+      if(!selectedPants){
+        showToast("먼저 하의 색부터 선택해 주세요!");
+        statusCallout.textContent = "하의 색을 먼저 선택해 주세요. (오른쪽 5가지 중 선택)";
+        // ✅ 버튼도 같이 강조 유지
+        setNeedsPants(true);
+        return;
+      }
+      fireworks();
+      playPop();
+      showToast("폭죽 🎆 (화면 가득)");
+    });
+
+    // =========================================================
+    // 초기화
+    // =========================================================
+    makePantsButtons();
+    // ✅ 시작 시 자동 강조 ON
+    setNeedsPants(true);
+
+    // chips 초기 메시지
+    goodChipsEl.innerHTML = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+    badChipsEl.innerHTML  = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+    mehChipsEl.innerHTML  = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+  </script>
 </body>
 </html>

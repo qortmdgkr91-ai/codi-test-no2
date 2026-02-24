@@ -683,9 +683,6 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <div style="max-width:1100px;margin:12px auto 0;display:flex;justify-content:center;">
-    <button class="btn" id="btnCopyPage" type="button">이 페이지 코드 복사</button>
-  </div>
 
   <script>
     // =========================================================
@@ -1736,17 +1733,6 @@
     // 초기화
     // =========================================================
     App.init();
-
-    // 페이지 전체 HTML 복사
-    document.getElementById("btnCopyPage").addEventListener("click", async ()=>{
-      try{
-        const code = "<!doctype html>\\n" + document.documentElement.outerHTML;
-        await navigator.clipboard.writeText(code);
-        showToast("페이지 코드 복사됨");
-      }catch(e){
-        showToast("복사 실패. 브라우저 권한을 확인하세요.");
-      }
-    });
   </script>
 </body>
 </html>

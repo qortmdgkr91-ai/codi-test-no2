@@ -317,6 +317,8 @@ const App = {
   state: {
     selectedPants: null,
     selectedShirt: null,
+    selectedBottomFit: null,
+    selectedTopType: null,
     reduceMotion: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
   },
 
@@ -327,6 +329,8 @@ const App = {
     this.bindStatic();
     this.setupIcons();
     this.makePantsButtons();
+    this.makeBottomFitButtons();
+    this.makeTopTypeButtons();
     this.setNeedsPants(true);
 
     this.el.goodChips.innerHTML = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
@@ -339,6 +343,8 @@ const App = {
   cacheEls(){
     this.el = {
       pantsButtons: document.getElementById("pantsButtons"),
+      bottomFitButtons: document.getElementById("bottomFitButtons"),
+      topTypeButtons: document.getElementById("topTypeButtons"),
       goodChips: document.getElementById("goodChips"),
       badChips: document.getElementById("badChips"),
       mehChips: document.getElementById("mehChips"),
@@ -346,6 +352,8 @@ const App = {
       shirtFill: document.getElementById("shirtFill"),
       statePill: document.getElementById("statePill"),
       shirtPill: document.getElementById("shirtPill"),
+      fitPill: document.getElementById("fitPill"),
+      topTypePill: document.getElementById("topTypePill"),
       statusCallout: document.getElementById("statusCallout"),
       pantsPickBanner: document.getElementById("pantsPickBanner"),
       btnFocusPants: document.getElementById("btnFocusPants"),
@@ -427,6 +435,40 @@ const App = {
     });
   },
 
+  makeBottomFitButtons(){
+    const fits = ["슬림핏","레귤러핏","오버핏"];
+    this.el.bottomFitButtons.innerHTML = "";
+    fits.forEach(name=>{
+      const b = document.createElement("button");
+      b.className = "btn";
+      b.type = "button";
+      b.textContent = name;
+      b.addEventListener("click", ()=> this.selectBottomFit(name));
+      this.el.bottomFitButtons.appendChild(b);
+    });
+  },
+
+  makeTopTypeButtons(){
+    const types = ["셔츠","맨투맨","반팔티","후드티"];
+    this.el.topTypeButtons.innerHTML = "";
+    types.forEach(name=>{
+      const b = document.createElement("button");
+      b.className = "btn";
+      b.type = "button";
+      b.textContent = name;
+      b.addEventListener("click", ()=> this.selectTopType(name));
+      this.el.topTypeButtons.appendChild(b);
+    });
+  },
+
+  updateSelectedButtons(container, selectedText){
+    const btns = container.querySelectorAll("button");
+    btns.forEach(btn => {
+      if (btn.textContent === selectedText) btn.classList.add("selected");
+      else btn.classList.remove("selected");
+    });
+  },
+
   renderChips(el, items){
     el.innerHTML = "";
     if (!this.state.selectedPants){
@@ -495,6 +537,24 @@ const App = {
     this.showToast(STRINGS.toast.pantsSelected(name));
   },
 
+  selectBottomFit(name){
+    this.state.selectedBottomFit = name;
+    this.el.fitPill.textContent = "하의 핏: " + name;
+    this.updateSelectedButtons(this.el.bottomFitButtons, name);
+    this.showToast(`${name} 선택 ✅`);
+  },
+
+  selectTopType(name){
+    this.state.selectedTopType = name;
+    this.el.topTypePill.textContent = "상의 종류: " + name;
+    this.updateSelectedButtons(this.el.topTypeButtons, name);
+    this.showToast(`${name} 선택 ✅`);
+  },
+
+  formatWithOption(base, opt){
+    return opt ? `${base}(${opt})` : base;
+  },
+
   applyShirt(colorName, grade){
     this.state.selectedShirt = colorName;
     this.el.shirtFill.setAttribute("fill", COLORS[colorName].hex);
@@ -504,6 +564,8 @@ const App = {
     const phrase = (GRADE[grade] && GRADE[grade].phrase) ? GRADE[grade].phrase : "";
     const eduKey = getEduKey(this.state.selectedPants, colorName, grade);
     const eduLine = EDU_TEXT[eduKey] || EDU_TEXT.contrast;
+    const pantsLabel = this.formatWithOption(this.state.selectedPants, this.state.selectedBottomFit);
+    const shirtLabel = this.formatWithOption(colorName, this.state.selectedTopType);
 
     this.el.statusCallout.innerHTML = `
       <div style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
@@ -513,7 +575,7 @@ const App = {
         </span>
         <div style="display:grid; gap:4px;">
           <div style="color: rgba(15,23,42,.86); font-size:12px; line-height:1.4;">
-            <b>${this.state.selectedPants}</b> + <b>${colorName}</b>
+            <b>${pantsLabel}</b> + <b>${shirtLabel}</b>
           </div>
           <div style="color: rgba(15,23,42,.70); font-size:12px; line-height:1.45;">
             ${phrase}

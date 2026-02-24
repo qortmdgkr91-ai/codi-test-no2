@@ -250,6 +250,24 @@ body{
   box-shadow: 0 16px 36px rgba(59,130,246,.18);
 }
 
+.segButtons{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 8px;
+}
+@media (max-width: 520px){
+  .segButtons{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+.segButtons .btn{ justify-content:center; }
+.segButtons .btn.selected{
+  border-color: rgba(79,70,229,.45);
+  box-shadow: 0 12px 26px rgba(79,70,229,.12);
+}
+#bottomFitButtons{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+@media (max-width: 520px){
+  #bottomFitButtons{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
 .btn:focus-visible,
 .chip:focus-visible{
   outline: 3px solid rgba(59,130,246,.55);

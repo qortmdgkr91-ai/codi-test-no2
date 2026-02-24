@@ -1182,6 +1182,45 @@
       });
     }
 
+    function sampleAlphaStats(img, sampleN){
+      const n = sampleN || 24;
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
+      if (!w || !h) return { min:0, max:0, nonZero:0, total:0 };
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let minA = 255, maxA = 0, nonZero = 0, total = 0;
+      for (let y = 0; y < n; y++){
+        for (let x = 0; x < n; x++){
+          const px = Math.floor((x / (n - 1)) * (w - 1));
+          const py = Math.floor((y / (n - 1)) * (h - 1));
+          const idx = (py * w + px) * 4 + 3;
+          const a = data[idx];
+          if (a < minA) minA = a;
+          if (a > maxA) maxA = a;
+          if (a > 0) nonZero++;
+          total++;
+        }
+      }
+      return { min: minA, max: maxA, nonZero: nonZero, total: total };
+    }
+
+    function validateMask(name, img){
+      const s = sampleAlphaStats(img, 24);
+      console.log("alpha", name, s);
+      if (s.nonZero === 0){
+        return `${name}가 완전 투명입니다.`;
+      }
+      if (s.max === 255 && s.min === 255){
+        return `${name}가 전체 불투명입니다.`;
+      }
+      return "";
+    }
+
     // =========================================================
     // App
     // =========================================================
@@ -1291,6 +1330,11 @@
           console.log("loaded", "top_shade");
           console.log("loaded", "pants_base");
           console.log("loaded", "pants_shade");
+          console.log("size", "mannequin", this.assets.mannequin.naturalWidth, this.assets.mannequin.naturalHeight);
+          console.log("size", "top_base", this.assets.topBase.naturalWidth, this.assets.topBase.naturalHeight);
+          console.log("size", "top_shade", this.assets.topShade.naturalWidth, this.assets.topShade.naturalHeight);
+          console.log("size", "pants_base", this.assets.pantsBase.naturalWidth, this.assets.pantsBase.naturalHeight);
+          console.log("size", "pants_shade", this.assets.pantsShade.naturalWidth, this.assets.pantsShade.naturalHeight);
           const sizes = [
             ["mannequin", this.assets.mannequin],
             ["top_base", this.assets.topBase],
@@ -1316,6 +1360,23 @@
             this.state.loadError = true;
             if (this.el && this.el.statusCallout){
               this.el.statusCallout.textContent = "이미지 크기 불일치: " + detail;
+            }
+            return;
+          }
+          const maskErrors = [];
+          const e1 = validateMask("top_base", this.assets.topBase);
+          if (e1) maskErrors.push(e1);
+          const e2 = validateMask("pants_base", this.assets.pantsBase);
+          if (e2) maskErrors.push(e2);
+          const e3 = validateMask("top_shade", this.assets.topShade);
+          if (e3) maskErrors.push(e3);
+          const e4 = validateMask("pants_shade", this.assets.pantsShade);
+          if (e4) maskErrors.push(e4);
+          if (maskErrors.length){
+            this.assetsReady = false;
+            this.state.loadError = true;
+            if (this.el && this.el.statusCallout){
+              this.el.statusCallout.textContent = "이미지 투명도 문제: " + maskErrors.join(" / ");
             }
             return;
           }

@@ -103,74 +103,153 @@ const STYLE_LINE = {
 };
 
 const EDU_CASES = [
-  // ===== 검정(Black) 하의 =====
-  { pants:"검정", shirt:"흰색",   eduKey:"contrast", weight:3 },
-  { pants:"검정", shirt:"아이보리", eduKey:"contrast", weight:3 },
-  { pants:"검정", shirt:"크림",   eduKey:"contrast", weight:2 },
-  { pants:"검정", shirt:"베이지", eduKey:"harmony",  weight:2 },
-  { pants:"검정", shirt:"차콜",   eduKey:"avoid",    weight:2 },
-  { pants:"검정", shirt:"네이비", eduKey:"avoid",    weight:2 },
-  { pants:"검정", shirt:"파란색", eduKey:"point",    weight:1 },
-  { pants:"검정", shirt:"노란색", eduKey:"point",    weight:2 },
-  { pants:"검정", shirt:"핑크",   eduKey:"point",    weight:1 },
-  { pants:"검정", shirt:"녹색",   eduKey:"point",    weight:1 },
+  {"pants":"검정","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"검정","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"검정","shirt":"크림","eduKey":"contrast","weight":3},
+  {"pants":"검정","shirt":"베이지","eduKey":"harmony","weight":2},
+  // 제외됨: pants=검정 shirt=그레이 (COLORS에 없음)
+  {"pants":"검정","shirt":"파란색","eduKey":"harmony","weight":2},
+  {"pants":"검정","shirt":"카키","eduKey":"point","weight":1},
+  {"pants":"검정","shirt":"브라운","eduKey":"point","weight":1},
 
-  // ===== 차콜(Charcoal) 하의 =====
-  { pants:"차콜", shirt:"흰색",   eduKey:"contrast", weight:3 },
-  { pants:"차콜", shirt:"아이보리", eduKey:"contrast", weight:3 },
-  { pants:"차콜", shirt:"크림",   eduKey:"contrast", weight:2 },
-  { pants:"차콜", shirt:"네이비", eduKey:"harmony",  weight:2 },
-  { pants:"차콜", shirt:"베이지", eduKey:"harmony",  weight:2 },
-  { pants:"차콜", shirt:"검정",   eduKey:"avoid",    weight:2 },
-  { pants:"차콜", shirt:"노란색", eduKey:"point",    weight:1 },
-  { pants:"차콜", shirt:"핑크",   eduKey:"point",    weight:1 },
+  {"pants":"차콜","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"차콜","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"차콜","shirt":"크림","eduKey":"contrast","weight":3},
+  {"pants":"차콜","shirt":"파란색","eduKey":"contrast","weight":3},
+  {"pants":"차콜","shirt":"네이비","eduKey":"harmony","weight":2},
+  // 제외됨: pants=차콜 shirt=그레이 (COLORS에 없음)
+  {"pants":"차콜","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"차콜","shirt":"브라운","eduKey":"point","weight":1},
 
-  // ===== 네이비(Navy) 하의 =====
-  { pants:"네이비", shirt:"흰색",   eduKey:"contrast", weight:3 },
-  { pants:"네이비", shirt:"아이보리", eduKey:"contrast", weight:3 },
-  { pants:"네이비", shirt:"크림",   eduKey:"contrast", weight:2 },
-  { pants:"네이비", shirt:"베이지", eduKey:"harmony",  weight:2 },
-  { pants:"네이비", shirt:"파란색", eduKey:"harmony",  weight:1 },
-  { pants:"네이비", shirt:"차콜",   eduKey:"harmony",  weight:2 },
-  { pants:"네이비", shirt:"검정",   eduKey:"avoid",    weight:2 },
-  { pants:"네이비", shirt:"노란색", eduKey:"point",    weight:1 },
+  {"pants":"네이비","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"네이비","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"네이비","shirt":"크림","eduKey":"contrast","weight":3},
+  {"pants":"네이비","shirt":"파란색","eduKey":"harmony","weight":2},
+  // 제외됨: pants=네이비 shirt=그레이 (COLORS에 없음)
+  {"pants":"네이비","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"네이비","shirt":"브라운","eduKey":"point","weight":1},
+  {"pants":"네이비","shirt":"카키","eduKey":"point","weight":1},
 
-  // ===== 진청(Dark Denim) 하의 =====
-  { pants:"진청", shirt:"흰색",   eduKey:"contrast", weight:3 },
-  { pants:"진청", shirt:"아이보리", eduKey:"contrast", weight:3 },
-  { pants:"진청", shirt:"크림",   eduKey:"contrast", weight:2 },
-  { pants:"진청", shirt:"파란색", eduKey:"harmony",  weight:2 },
-  { pants:"진청", shirt:"베이지", eduKey:"harmony",  weight:2 },
-  { pants:"진청", shirt:"차콜",   eduKey:"harmony",  weight:2 },
-  { pants:"진청", shirt:"네이비", eduKey:"avoid",    weight:2 },
-  { pants:"진청", shirt:"노란색", eduKey:"point",    weight:1 },
+  {"pants":"진청","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"진청","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"진청","shirt":"크림","eduKey":"contrast","weight":3},
+  {"pants":"진청","shirt":"파란색","eduKey":"harmony","weight":3},
+  // 제외됨: pants=진청 shirt=그레이 (COLORS에 없음)
+  {"pants":"진청","shirt":"차콜","eduKey":"harmony","weight":2},
+  {"pants":"진청","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"진청","shirt":"브라운","eduKey":"point","weight":1},
 
-  // ===== 연청(Light Denim) 하의 =====
-  { pants:"연청", shirt:"흰색",   eduKey:"harmony",  weight:3 },
-  { pants:"연청", shirt:"아이보리", eduKey:"harmony",  weight:2 },
-  { pants:"연청", shirt:"크림",   eduKey:"harmony",  weight:2 },
-  { pants:"연청", shirt:"네이비", eduKey:"contrast", weight:2 },
-  { pants:"연청", shirt:"차콜",   eduKey:"contrast", weight:2 },
-  { pants:"연청", shirt:"베이지", eduKey:"harmony",  weight:2 },
-  { pants:"연청", shirt:"노란색", eduKey:"point",    weight:1 },
+  {"pants":"흑청","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"흑청","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"흑청","shirt":"크림","eduKey":"contrast","weight":3},
+  // 제외됨: pants=흑청 shirt=그레이 (COLORS에 없음)
+  {"pants":"흑청","shirt":"차콜","eduKey":"harmony","weight":2},
+  {"pants":"흑청","shirt":"파란색","eduKey":"harmony","weight":2},
+  {"pants":"흑청","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"흑청","shirt":"브라운","eduKey":"point","weight":1},
 
-  // ===== 베이지/아이보리/크림/카키/브라운 하의 (멘즈웨어 뉴트럴) =====
-  { pants:"베이지", shirt:"네이비", eduKey:"contrast", weight:3 },
-  { pants:"베이지", shirt:"흰색",   eduKey:"harmony",  weight:3 },
-  { pants:"베이지", shirt:"차콜",   eduKey:"harmony",  weight:2 },
+  {"pants":"연청","shirt":"흰색","eduKey":"harmony","weight":3},
+  {"pants":"연청","shirt":"아이보리","eduKey":"harmony","weight":3},
+  {"pants":"연청","shirt":"크림","eduKey":"harmony","weight":2},
+  {"pants":"연청","shirt":"네이비","eduKey":"contrast","weight":3},
+  {"pants":"연청","shirt":"차콜","eduKey":"contrast","weight":2},
+  // 제외됨: pants=연청 shirt=그레이 (COLORS에 없음)
+  {"pants":"연청","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"연청","shirt":"파란색","eduKey":"harmony","weight":2},
 
-  { pants:"아이보리", shirt:"네이비", eduKey:"contrast", weight:3 },
-  { pants:"크림",   shirt:"네이비", eduKey:"contrast", weight:3 },
+  {"pants":"베이지","shirt":"네이비","eduKey":"contrast","weight":3},
+  {"pants":"베이지","shirt":"파란색","eduKey":"contrast","weight":2},
+  {"pants":"베이지","shirt":"흰색","eduKey":"harmony","weight":3},
+  {"pants":"베이지","shirt":"아이보리","eduKey":"harmony","weight":3},
+  {"pants":"베이지","shirt":"크림","eduKey":"harmony","weight":2},
+  // 제외됨: pants=베이지 shirt=그레이 (COLORS에 없음)
+  {"pants":"베이지","shirt":"차콜","eduKey":"harmony","weight":2},
+  {"pants":"베이지","shirt":"브라운","eduKey":"harmony","weight":2},
 
-  { pants:"카키",   shirt:"흰색",   eduKey:"contrast", weight:3 },
-  { pants:"카키",   shirt:"네이비", eduKey:"harmony",  weight:3 },
+  {"pants":"아이보리","shirt":"네이비","eduKey":"contrast","weight":3},
+  {"pants":"아이보리","shirt":"차콜","eduKey":"contrast","weight":2},
+  // 제외됨: pants=아이보리 shirt=그레이 (COLORS에 없음)
+  {"pants":"아이보리","shirt":"파란색","eduKey":"harmony","weight":2},
+  {"pants":"아이보리","shirt":"브라운","eduKey":"harmony","weight":2},
+  {"pants":"아이보리","shirt":"카키","eduKey":"point","weight":1},
+  {"pants":"아이보리","shirt":"녹색","eduKey":"point","weight":1},
+  {"pants":"아이보리","shirt":"베이지","eduKey":"harmony","weight":2},
 
-  { pants:"브라운", shirt:"흰색",   eduKey:"contrast", weight:2 },
-  { pants:"브라운", shirt:"아이보리", eduKey:"harmony",  weight:3 },
+  {"pants":"크림","shirt":"네이비","eduKey":"contrast","weight":3},
+  {"pants":"크림","shirt":"차콜","eduKey":"contrast","weight":2},
+  // 제외됨: pants=크림 shirt=그레이 (COLORS에 없음)
+  {"pants":"크림","shirt":"파란색","eduKey":"harmony","weight":2},
+  {"pants":"크림","shirt":"브라운","eduKey":"harmony","weight":2},
+  {"pants":"크림","shirt":"카키","eduKey":"point","weight":1},
+  {"pants":"크림","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"크림","shirt":"녹색","eduKey":"point","weight":1},
 
-  // ===== 흑청 하의 =====
-  { pants:"흑청", shirt:"흰색",   eduKey:"contrast", weight:3 },
-  { pants:"흑청", shirt:"아이보리", eduKey:"contrast", weight:3 }
+  {"pants":"카키","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"카키","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"카키","shirt":"크림","eduKey":"contrast","weight":2},
+  {"pants":"카키","shirt":"네이비","eduKey":"harmony","weight":3},
+  {"pants":"카키","shirt":"파란색","eduKey":"harmony","weight":2},
+  // 제외됨: pants=카키 shirt=그레이 (COLORS에 없음)
+  {"pants":"카키","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"카키","shirt":"브라운","eduKey":"harmony","weight":2},
+
+  {"pants":"브라운","shirt":"흰색","eduKey":"contrast","weight":3},
+  {"pants":"브라운","shirt":"아이보리","eduKey":"contrast","weight":3},
+  {"pants":"브라운","shirt":"크림","eduKey":"contrast","weight":2},
+  {"pants":"브라운","shirt":"파란색","eduKey":"contrast","weight":3},
+  {"pants":"브라운","shirt":"네이비","eduKey":"harmony","weight":2},
+  // 제외됨: pants=브라운 shirt=그레이 (COLORS에 없음)
+  {"pants":"브라운","shirt":"베이지","eduKey":"harmony","weight":2},
+  {"pants":"브라운","shirt":"카키","eduKey":"harmony","weight":2}
+];
+
+const EDU_BAD_CASES = [
+  /* 둘 다 너무 어두움(답답) */
+  {"pants":"검정","shirt":"네이비","weight":3},
+  {"pants":"검정","shirt":"차콜","weight":2},
+  {"pants":"검정","shirt":"흑청","weight":2},
+
+  {"pants":"네이비","shirt":"검정","weight":3},
+  {"pants":"네이비","shirt":"흑청","weight":2},
+  {"pants":"네이비","shirt":"차콜","weight":2},
+
+  {"pants":"차콜","shirt":"검정","weight":3},
+  {"pants":"차콜","shirt":"네이비","weight":2},
+  {"pants":"차콜","shirt":"흑청","weight":2},
+
+  {"pants":"흑청","shirt":"검정","weight":3},
+  {"pants":"흑청","shirt":"네이비","weight":2},
+  {"pants":"흑청","shirt":"흑청","weight":3},
+
+  /* 데님온데님(난이도) */
+  {"pants":"진청","shirt":"흑청","weight":2},
+  {"pants":"진청","shirt":"진청","weight":2},
+  {"pants":"연청","shirt":"연청","weight":2},
+
+  /* 톤 겹침(카키/그린 계열) */
+  {"pants":"카키","shirt":"녹색","weight":3},
+  {"pants":"카키","shirt":"카키","weight":2},
+  {"pants":"녹색","shirt":"카키","weight":2},
+
+  /* 포인트색이 애매한 하의에서 촌스러울 가능성 */
+  {"pants":"베이지","shirt":"노란색","weight":2},
+  {"pants":"베이지","shirt":"핑크","weight":2},
+  {"pants":"아이보리","shirt":"노란색","weight":2},
+  {"pants":"아이보리","shirt":"핑크","weight":2},
+  {"pants":"크림","shirt":"노란색","weight":2},
+  {"pants":"크림","shirt":"핑크","weight":2},
+  {"pants":"연청","shirt":"노란색","weight":2},
+  {"pants":"연청","shirt":"핑크","weight":2},
+
+  /* 브라운 + 카키 과하면 답답/촌스러움 가능 */
+  {"pants":"브라운","shirt":"카키","weight":2},
+  {"pants":"카키","shirt":"브라운","weight":2},
+
+  /* 차콜/검정 + 노란/핑크는 사람에 따라 튈 수 있어 경고 */
+  {"pants":"차콜","shirt":"노란색","weight":1},
+  {"pants":"차콜","shirt":"핑크","weight":1},
+  {"pants":"검정","shirt":"노란색","weight":1},
+  {"pants":"검정","shirt":"핑크","weight":1}
 ];
 
 // =========================================================
@@ -409,6 +488,14 @@ function caseWeight(pantsName, shirtName){
   return 0;
 }
 
+function badWeight(pantsName, shirtName){
+  for (var i=0;i<EDU_BAD_CASES.length;i++){
+    var c = EDU_BAD_CASES[i];
+    if (c.pants === pantsName && c.shirt === shirtName) return c.weight || 1;
+  }
+  return 0;
+}
+
 // =========================================================
 // App
 // =========================================================
@@ -569,46 +656,40 @@ const App = {
     });
   },
 
-  prioritizeColors(list, colors){
-    if (!list || !list.length) return [];
-    if (!colors || !colors.length) return list.slice();
-    const priority = new Map();
-    colors.forEach((c, i)=> priority.set(c, i));
-    return list.slice().sort((a, b)=>{
-      const pa = priority.has(a.color) ? priority.get(a.color) : 999;
-      const pb = priority.has(b.color) ? priority.get(b.color) : 999;
-      return pa - pb;
-    });
+  sortByWeight(list, pantsName, weightFn, priorityColors){
+    const items = list ? list.slice() : [];
+    if (!items.length) return [];
+    const pri = priorityColors || [];
+    return items
+      .map((item, idx)=> ({ item, idx }))
+      .sort((a, b)=>{
+        const wa = weightFn(pantsName, a.item.color);
+        const wb = weightFn(pantsName, b.item.color);
+        if (wb !== wa) return wb - wa;
+        if (pri.length){
+          const pa = pri.indexOf(a.item.color);
+          const pb = pri.indexOf(b.item.color);
+          const aPri = pa === -1 ? 999 : pa;
+          const bPri = pb === -1 ? 999 : pb;
+          if (aPri !== bPri) return aPri - bPri;
+        }
+        return a.idx - b.idx;
+      })
+      .map(x => x.item);
   },
 
   adjustListsForSelections(rule){
-    const good = rule.good ? rule.good.slice() : [];
-    const bad = rule.bad ? rule.bad.slice() : [];
-    const meh = rule.meh ? rule.meh.slice() : [];
-
     const pantsName = this.state.selectedPants;
-    good.sort((a,b)=> caseWeight(pantsName, b.color) - caseWeight(pantsName, a.color));
-    bad.sort((a,b)=> caseWeight(pantsName, b.color) - caseWeight(pantsName, a.color));
-    meh.sort((a,b)=> caseWeight(pantsName, b.color) - caseWeight(pantsName, a.color));
-
     let boostColors = null;
     if (this.state.selectedTopType === "셔츠") boostColors = ["흰색","파란색"];
     else if (this.state.selectedTopType === "후드티" || this.state.selectedTopType === "맨투맨") boostColors = ["차콜","베이지"];
     else if (this.state.selectedTopType === "니트") boostColors = ["흰색","베이지"];
 
-    const goodBoosted = this.prioritizeColors(good, boostColors);
-    const mehBoosted = this.prioritizeColors(meh, boostColors);
+    const good = this.sortByWeight(rule.good || [], pantsName, caseWeight, boostColors);
+    const meh = this.sortByWeight(rule.meh || [], pantsName, caseWeight, boostColors);
+    const bad = this.sortByWeight(rule.bad || [], pantsName, badWeight, null);
 
-    // 약한 페널티: 특정 조합일 때 good 2번째를 meh 1번째와 교체
-    const isOvershirt = this.state.selectedBottomFit === "와이드" && this.state.selectedTopType === "셔츠";
-    const isSlimHood = this.state.selectedBottomFit === "슬림" && this.state.selectedTopType === "후드티";
-    if ((isOvershirt || isSlimHood) && goodBoosted.length > 1 && mehBoosted.length > 0){
-      const tmp = goodBoosted[1];
-      goodBoosted[1] = mehBoosted[0];
-      mehBoosted[0] = tmp;
-    }
-
-    return { good: goodBoosted, bad, meh: mehBoosted };
+    return { good, bad, meh };
   },
 
   refreshRecommendations(){
@@ -616,8 +697,9 @@ const App = {
     const r = RULES[this.state.selectedPants];
     const adjusted = this.adjustListsForSelections(r);
     this.renderChips(this.el.goodChips, adjusted.good);
-    let badList = (adjusted.bad && adjusted.bad.length) ? adjusted.bad : [];
+    let badList = (adjusted.bad && adjusted.bad.length) ? adjusted.bad.slice() : [];
     if (!badList.length && adjusted.meh && adjusted.meh.length) badList = adjusted.meh.slice(0,2);
+    badList = this.sortByWeight(badList, this.state.selectedPants, badWeight, null);
     this.renderChips(this.el.badChips, badList);
     this.renderChips(this.el.mehChips, adjusted.meh || []);
   },
@@ -625,11 +707,12 @@ const App = {
   renderStatusCallout(grade, colorName){
     const iconSrc = (GRADE[grade] && GRADE[grade].icon) ? GRADE[grade].icon : ICON.circle;
     const phrase = (GRADE[grade] && GRADE[grade].phrase) ? GRADE[grade].phrase : "";
+    const bw = badWeight(this.state.selectedPants, colorName);
     const caseKey = findEduKeyFromCases(this.state.selectedPants, colorName);
-    let eduKey = caseKey ? caseKey : getEduKey(this.state.selectedPants, colorName, grade);
-    if ((grade === "강추" || grade === "괜찮음") && eduKey === "avoid") {
-      eduKey = getEduKey(this.state.selectedPants, colorName, grade);
-    }
+    let eduKey;
+    if (bw > 0) eduKey = "avoid";
+    else if (caseKey) eduKey = caseKey;
+    else eduKey = getEduKey(this.state.selectedPants, colorName, grade);
     const eduLine = EDU_TEXT[eduKey] || EDU_TEXT.contrast;
     const pantsLabel = this.formatWithOption(this.state.selectedPants, this.state.selectedBottomFit);
     const shirtLabel = this.formatWithOption(colorName, this.state.selectedTopType);

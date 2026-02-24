@@ -470,42 +470,6 @@
     .topFill{ fill:#9CA3AF; }
     .bottomFill{ fill:#6B7280; }
 
-    .checkPanel{
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow2);
-    }
-    .checkGrid{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    @media (max-width: 860px){
-      .checkGrid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
-    @media (max-width: 560px){
-      .checkGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-    }
-    .checkCard{
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-      padding: 8px;
-      background: rgba(255,255,255,.9);
-      display:grid;
-      gap: 6px;
-      align-items:center;
-      justify-items:center;
-    }
-    .checkNum{
-      font-weight: 900;
-      font-size: 12px;
-      color: rgba(15,23,42,.70);
-    }
-
     @media (prefers-reduced-motion: reduce){
       *, *::before, *::after{
         animation: none !important;
@@ -706,10 +670,6 @@
       </section>
     </section>
 
-    <section class="checkPanel" aria-label="검수 패널">
-      <div class="panelTitle">검수용 12조합(번호는 개발용)</div>
-      <div class="checkGrid" id="checkGrid"></div>
-    </section>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1129,21 +1089,6 @@
       }
     };
 
-    const CHECK_12 = [
-      {n:1, top:"니트", fit:"슬림"},
-      {n:2, top:"니트", fit:"레귤러"},
-      {n:3, top:"니트", fit:"와이드"},
-      {n:4, top:"셔츠", fit:"슬림"},
-      {n:5, top:"셔츠", fit:"레귤러"},
-      {n:6, top:"셔츠", fit:"와이드"},
-      {n:7, top:"후드", fit:"슬림"},
-      {n:8, top:"후드", fit:"레귤러"},
-      {n:9, top:"후드", fit:"와이드"},
-      {n:10, top:"맨투맨", fit:"슬림"},
-      {n:11, top:"맨투맨", fit:"레귤러"},
-      {n:12, top:"맨투맨", fit:"와이드"}
-    ];
-
     // =========================================================
     // 유틸
     // =========================================================
@@ -1311,7 +1256,6 @@
         this.el.badChips.innerHTML  = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
         this.el.mehChips.innerHTML  = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
 
-        this.renderCheckPanel();
         validateRules();
       },
 
@@ -1338,8 +1282,7 @@
           legendHeart: document.getElementById("legendHeart"),
           legendCircle: document.getElementById("legendCircle"),
           legendTriangle: document.getElementById("legendTriangle"),
-          legendX: document.getElementById("legendX"),
-          checkGrid: document.getElementById("checkGrid")
+          legendX: document.getElementById("legendX")
         };
       },
 
@@ -1774,143 +1717,6 @@
         requestAnimationFrame(tick);
       },
 
-      renderCheckPanel(){
-        if (!this.el.checkGrid) return;
-        this.el.checkGrid.innerHTML = "";
-        CHECK_12.forEach(item => {
-          const card = document.createElement("div");
-          card.className = "checkCard";
-          const num = document.createElement("div");
-          num.className = "checkNum";
-          num.textContent = item.n;
-          const svg = this.buildCheckSvg(item.top, item.fit);
-          card.appendChild(num);
-          card.appendChild(svg);
-          this.el.checkGrid.appendChild(card);
-        });
-      },
-
-      buildCheckSvg(topType, fit){
-        const svgNS = "http://www.w3.org/2000/svg";
-        const svg = document.createElementNS(svgNS, "svg");
-        svg.setAttribute("viewBox", "0 0 200 260");
-        svg.setAttribute("width", "90");
-        svg.setAttribute("height", "110");
-
-        const base = document.createElementNS(svgNS, "g");
-        base.setAttribute("id", "baseMan");
-        const head = document.createElementNS(svgNS, "circle");
-        head.setAttribute("cx", "100");
-        head.setAttribute("cy", "28");
-        head.setAttribute("r", "16");
-        const torso = document.createElementNS(svgNS, "rect");
-        torso.setAttribute("x", "70");
-        torso.setAttribute("y", "45");
-        torso.setAttribute("width", "60");
-        torso.setAttribute("height", "60");
-        torso.setAttribute("rx", "12");
-        const neck = document.createElementNS(svgNS, "rect");
-        neck.setAttribute("x", "82");
-        neck.setAttribute("y", "105");
-        neck.setAttribute("width", "36");
-        neck.setAttribute("height", "14");
-        neck.setAttribute("rx", "6");
-        base.appendChild(head);
-        base.appendChild(torso);
-        base.appendChild(neck);
-        svg.appendChild(base);
-
-        const topIds = {
-          "셔츠": "top_shirt",
-          "맨투맨": "top_sweat",
-          "후드": "top_hoodie",
-          "니트": "top_knit"
-        };
-        const bottomIds = {
-          "슬림": "bottom_slim",
-          "레귤러": "bottom_regular",
-          "와이드": "bottom_wide"
-        };
-
-        const makeRect = (x,y,w,h,rx)=>{
-          const r = document.createElementNS(svgNS, "rect");
-          r.setAttribute("x", x);
-          r.setAttribute("y", y);
-          r.setAttribute("width", w);
-          r.setAttribute("height", h);
-          r.setAttribute("rx", rx);
-          r.setAttribute("class", "topFill");
-          return r;
-        };
-
-        const top_shirt = document.createElementNS(svgNS, "g");
-        top_shirt.setAttribute("id", "top_shirt");
-        top_shirt.style.display = topIds[topType] === "top_shirt" ? "block" : "none";
-        top_shirt.appendChild(makeRect("58","52","84","58","10"));
-        const collar = document.createElementNS(svgNS, "polygon");
-        collar.setAttribute("points", "92,52 108,52 100,66");
-        collar.setAttribute("class", "topFill");
-        top_shirt.appendChild(collar);
-        svg.appendChild(top_shirt);
-
-        const top_sweat = document.createElementNS(svgNS, "g");
-        top_sweat.setAttribute("id", "top_sweat");
-        top_sweat.style.display = topIds[topType] === "top_sweat" ? "block" : "none";
-        top_sweat.appendChild(makeRect("56","52","88","64","12"));
-        top_sweat.appendChild(makeRect("56","92","88","10","5"));
-        svg.appendChild(top_sweat);
-
-        const top_hoodie = document.createElementNS(svgNS, "g");
-        top_hoodie.setAttribute("id", "top_hoodie");
-        top_hoodie.style.display = topIds[topType] === "top_hoodie" ? "block" : "none";
-        top_hoodie.appendChild(makeRect("56","52","88","66","12"));
-        const hood = document.createElementNS(svgNS, "path");
-        hood.setAttribute("d", "M78 52 Q100 28 122 52");
-        hood.setAttribute("class", "topFill");
-        top_hoodie.appendChild(hood);
-        svg.appendChild(top_hoodie);
-
-        const top_knit = document.createElementNS(svgNS, "g");
-        top_knit.setAttribute("id", "top_knit");
-        top_knit.style.display = topIds[topType] === "top_knit" ? "block" : "none";
-        top_knit.appendChild(makeRect("58","52","84","64","12"));
-        top_knit.appendChild(makeRect("58","104","84","8","4"));
-        svg.appendChild(top_knit);
-
-        const makeBottom = (x,y,w,h,rx)=>{
-          const r = document.createElementNS(svgNS, "rect");
-          r.setAttribute("x", x);
-          r.setAttribute("y", y);
-          r.setAttribute("width", w);
-          r.setAttribute("height", h);
-          r.setAttribute("rx", rx);
-          r.setAttribute("class", "bottomFill");
-          return r;
-        };
-
-        const bottom_slim = document.createElementNS(svgNS, "g");
-        bottom_slim.setAttribute("id", "bottom_slim");
-        bottom_slim.style.display = bottomIds[fit] === "bottom_slim" ? "block" : "none";
-        bottom_slim.appendChild(makeBottom("86","120","28","90","10"));
-        bottom_slim.appendChild(makeBottom("72","120","24","90","10"));
-        svg.appendChild(bottom_slim);
-
-        const bottom_regular = document.createElementNS(svgNS, "g");
-        bottom_regular.setAttribute("id", "bottom_regular");
-        bottom_regular.style.display = bottomIds[fit] === "bottom_regular" ? "block" : "none";
-        bottom_regular.appendChild(makeBottom("84","120","34","92","10"));
-        bottom_regular.appendChild(makeBottom("62","120","28","92","10"));
-        svg.appendChild(bottom_regular);
-
-        const bottom_wide = document.createElementNS(svgNS, "g");
-        bottom_wide.setAttribute("id", "bottom_wide");
-        bottom_wide.style.display = bottomIds[fit] === "bottom_wide" ? "block" : "none";
-        bottom_wide.appendChild(makeBottom("84","120","42","96","10"));
-        bottom_wide.appendChild(makeBottom("54","120","36","96","10"));
-        svg.appendChild(bottom_wide);
-
-        return svg;
-      }
     };
 
     // =========================================================

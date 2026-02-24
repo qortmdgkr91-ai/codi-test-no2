@@ -4,7 +4,516 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>이 바지에 뭐입지?</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    :root{
+      --bgA:#f7f8fb;
+      --bgB:#eef2ff;
+      --card:#ffffff;
+      --stroke: rgba(15, 23, 42, .10);
+      --stroke2: rgba(15, 23, 42, .16);
+
+      --text: rgba(15, 23, 42, .92);
+      --muted: rgba(15, 23, 42, .62);
+
+      --shadow: 0 18px 50px rgba(15, 23, 42, .10);
+      --shadow2: 0 10px 24px rgba(15, 23, 42, .08);
+      --radius: 22px;
+
+      /* 강조용 */
+      --accent: #4f46e5;
+      --accent2:#60a5fa;
+      --warnBg: rgba(79,70,229,.08);
+      --warnBorder: rgba(79,70,229,.22);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 12% 0%, rgba(99,102,241,.18), transparent 55%),
+        radial-gradient(780px 520px at 80% 10%, rgba(16,185,129,.14), transparent 55%),
+        radial-gradient(900px 650px at 60% 100%, rgba(236,72,153,.12), transparent 60%),
+        linear-gradient(180deg, var(--bgA) 0%, var(--bgB) 60%, var(--bgA) 100%);
+      padding: 26px 18px 40px;
+    }
+
+    /* fireworks canvas */
+    #fxCanvas{
+      position:fixed;
+      inset:0;
+      width:100vw;
+      height:100vh;
+      pointer-events:none;
+      z-index:9999;
+    }
+
+    .shell{
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero{
+      padding: 18px 18px 14px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .hero h1{
+      margin:0;
+      text-align:center;
+      font-size: 34px;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .hero .sub{
+      margin-top: 8px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      padding: 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .panelHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap:wrap;
+    }
+    .panelTitle{
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      font-size: 15px;
+    }
+    .meta{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+      align-items:center;
+    }
+    .pill{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .05);
+      border: 1px solid var(--stroke);
+      color: rgba(15, 23, 42, .78);
+    }
+
+    /* LEFT */
+    .outfitWrap{ display:grid; gap: 14px; }
+
+    .outfitCard{
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.82));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .outfitTopRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .hint{
+      color: rgba(15, 23, 42, .70);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .outfitGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items:center;
+    }
+    @media (max-width: 520px){
+      .outfitGrid{ grid-template-columns: 1fr; }
+    }
+
+    .figure{
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .03);
+      border: 1px solid var(--stroke);
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .legend{
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .03);
+      border: 1px solid var(--stroke);
+      padding: 12px;
+      display:grid;
+      gap: 12px;
+    }
+
+    .legendItem{ display:grid; gap: 6px; }
+    .legendTop{ display:flex; align-items:center; gap: 10px; flex-wrap:wrap; }
+
+    .badgeIcon{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid var(--stroke);
+      font-size: 12px;
+      color: rgba(15, 23, 42, .90);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
+    }
+    .badgeIcon b{ font-weight: 950; }
+
+    .legendMsg{
+      color: rgba(15, 23, 42, .70);
+      font-size: 12px;
+      line-height: 1.45;
+      padding-left: 6px;
+    }
+
+    .iconImg{
+      width: 16px;
+      height: 16px;
+      display:inline-block;
+      vertical-align:-3px;
+    }
+
+    /* RIGHT */
+    .choices{ display:grid; gap: 12px; }
+    .selectRow{ display:grid; gap: 10px; }
+
+    .pantsButtons{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 520px){
+      .pantsButtons{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius: 16px;
+      padding: 12px 12px;
+      font-weight: 950;
+      letter-spacing: -0.01em;
+      color: rgba(15, 23, 42, .92);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.82));
+      border: 1px solid var(--stroke);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+      transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      position: relative;
+    }
+    .btn:hover{ border-color: var(--stroke2); }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn.primary{
+      color: rgba(255,255,255,.96);
+      background: linear-gradient(135deg, rgba(99,102,241,.95), rgba(59,130,246,.90));
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 16px 36px rgba(59,130,246,.18);
+    }
+
+    .segButtons{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 8px;
+    }
+    @media (max-width: 520px){
+      .segButtons{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    .segButtons .btn{ justify-content:center; }
+    .segButtons .btn.selected{
+      border-color: rgba(79,70,229,.45);
+      box-shadow: 0 12px 26px rgba(79,70,229,.12);
+    }
+    #bottomFitButtons{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    @media (max-width: 520px){
+      #bottomFitButtons{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+
+    .btn:focus-visible,
+    .chip:focus-visible{
+      outline: 3px solid rgba(59,130,246,.55);
+      outline-offset: 2px;
+    }
+
+    .swatch{
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(15, 23, 42, .16);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, .08);
+      flex: 0 0 auto;
+    }
+
+    /* ✅ 시작 시 "하의 먼저" 강조 */
+    .pantsPickBanner{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(79,70,229,.10), rgba(79,70,229,.06));
+      border: 1px solid var(--warnBorder);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+    }
+    .pantsPickBanner.show{ display:flex; }
+    .pantsPickBanner .left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .pantsPickBanner .dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(79,70,229,.12);
+    }
+    .pantsPickBanner b{
+      font-weight: 950;
+      letter-spacing: -0.01em;
+      font-size: 13px;
+      color: rgba(15,23,42,.92);
+    }
+    .pantsPickBanner span{
+      font-size: 12px;
+      color: rgba(15,23,42,.62);
+    }
+    .pantsPickBanner button{
+      border: 0;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-weight: 900;
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--warnBorder);
+      color: rgba(15,23,42,.85);
+    }
+
+    /* ✅ 하의 버튼들 "깜빡임/테두리" 유도 */
+    .pantsButtons.attention .btn{
+      animation: pantsPulse 1.15s ease-in-out infinite;
+      border-color: var(--warnBorder);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22);
+    }
+    .pantsButtons.attention .btn:nth-child(2){ animation-delay: .05s; }
+    .pantsButtons.attention .btn:nth-child(3){ animation-delay: .10s; }
+    .pantsButtons.attention .btn:nth-child(4){ animation-delay: .15s; }
+    .pantsButtons.attention .btn:nth-child(5){ animation-delay: .20s; }
+
+    .pantsButtons .btn.selected{
+      border-color: rgba(79,70,229,.65);
+      box-shadow: 0 14px 30px rgba(79,70,229,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.88));
+    }
+
+    @keyframes pantsPulse{
+      0%   { transform: translateY(0); box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22); }
+      50%  { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(15, 23, 42, .08), 0 0 0 6px rgba(79,70,229,.12); }
+      100% { transform: translateY(0); box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22); }
+    }
+
+    /* ✅ 오른쪽 패널 제목 줄도 강조(선택 전) */
+    .needsPants .panelTitle.pantsTitle{
+      color: rgba(79,70,229,.95);
+    }
+    .needsPants .panelTitle.pantsTitle::after{
+      content:"  (먼저 선택)";
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(79,70,229,.75);
+      margin-left: 6px;
+    }
+
+    .resultSection{
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(15, 23, 42, .03);
+      border: 1px solid var(--stroke);
+      display:grid;
+      gap: 10px;
+    }
+
+    .resultHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .resultHead strong{
+      font-size: 13px;
+      letter-spacing:-0.01em;
+    }
+    .muted{ color: var(--muted); font-size: 12px; }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+
+    .chip{
+      cursor:pointer;
+      user-select:none;
+      border-radius: 14px;
+      padding: 9px 10px;
+      border: 1px solid rgba(15, 23, 42, .12);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+      font-weight: 900;
+      letter-spacing:-0.01em;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+    }
+    .chip:hover{ transform: translateY(-1px); border-color: rgba(15, 23, 42, .22); }
+    .chip:active{ transform: translateY(1px) scale(.99); }
+
+    .chip .mark{
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15, 23, 42, .12);
+    }
+    .chip .mark img{
+      width: 15px;
+      height: 15px;
+      display:block;
+    }
+
+    .callout{
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
+      border: 1px solid var(--stroke);
+      color: rgba(15, 23, 42, .86);
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    }
+
+    /* toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--stroke);
+      color: rgba(15, 23, 42, .92);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      display:none;
+      z-index: 10000;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .toast.show{ display:block; animation: toast .18s ease both; }
+    @keyframes toast{
+      from{ transform: translateX(-50%) translateY(6px); opacity:0; }
+      to{ transform: translateX(-50%) translateY(0); opacity:1; }
+    }
+
+    #baseMan, #baseMan *{ fill:#111; }
+    .topFill{ fill:#9CA3AF; }
+    .bottomFill{ fill:#6B7280; }
+
+    .checkPanel{
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow2);
+    }
+    .checkGrid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 860px){
+      .checkGrid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+    @media (max-width: 560px){
+      .checkGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    .checkCard{
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(255,255,255,.9);
+      display:grid;
+      gap: 6px;
+      align-items:center;
+      justify-items:center;
+    }
+    .checkNum{
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(15,23,42,.70);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *, *::before, *::after{
+        animation: none !important;
+        transition: none !important;
+      }
+      #fxCanvas{ display:none; }
+    }
+  </style>
 </head>
 
 <body>
@@ -41,82 +550,44 @@
 
             <div class="outfitGrid">
               <div class="figure" aria-label="상의/하의 그림">
-                <!-- 5:5 비율(상/하 높이 동일) -->
-                <svg id="outfitSvg" width="360" height="320" viewBox="0 0 360 320" role="img" aria-label="상의와 하의">
-                  <defs>
-                    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
-                      <feGaussianBlur stdDeviation="5" result="blur"/>
-                      <feMerge>
-                        <feMergeNode in="blur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
-
-                  <!-- TOP -->
-                  <g transform="translate(40,18)">
-                    <path id="shirtFill"
-                      d="M92 34
-                         C105 12, 128 2, 156 2
-                         C184 2, 207 12, 220 34
-                         L250 48
-                         L236 86
-                         L215 78
-                         L215 150
-                         L97 150
-                         L97 78
-                         L76 86
-                         L62 48
-                         Z"
-                      fill="transparent"
-                      filter="url(#softGlow)"/>
-                    <path
-                      d="M92 34
-                         C105 12, 128 2, 156 2
-                         C184 2, 207 12, 220 34
-                         L250 48
-                         L236 86
-                         L215 78
-                         L215 150
-                         L97 150
-                         L97 78
-                         L76 86
-                         L62 48
-                         Z"
-                      fill="none"
-                      stroke="rgba(15,23,42,.70)"
-                      stroke-width="3"
-                      stroke-linejoin="round"/>
-                    <text x="156" y="176" text-anchor="middle" fill="rgba(15,23,42,.55)" font-size="14" font-weight="800">TOP</text>
+                <svg id="outfitSvg" width="360" height="320" viewBox="0 0 200 260" role="img" aria-label="상의와 하의">
+                  <!-- BASE MAN -->
+                  <g id="baseMan">
+                    <circle cx="100" cy="28" r="16" />
+                    <rect x="70" y="45" width="60" height="60" rx="12" />
+                    <rect x="82" y="105" width="36" height="14" rx="6" />
                   </g>
 
-                  <!-- PANTS -->
-                  <g transform="translate(40,168)">
-                    <path id="pantsFill"
-                      d="M118 6
-                         L194 6
-                         L208 140
-                         L170 140
-                         L156 74
-                         L142 140
-                         L104 140
-                         Z"
-                      fill="transparent"
-                      filter="url(#softGlow)"/>
-                    <path
-                      d="M118 6
-                         L194 6
-                         L208 140
-                         L170 140
-                         L156 74
-                         L142 140
-                         L104 140
-                         Z"
-                      fill="none"
-                      stroke="rgba(15,23,42,.70)"
-                      stroke-width="3"
-                      stroke-linejoin="round"/>
-                    <text x="156" y="170" text-anchor="middle" fill="rgba(15,23,42,.55)" font-size="14" font-weight="800">PANTS</text>
+                  <!-- TOPS -->
+                  <g id="top_shirt" style="display:none;">
+                    <rect class="topFill" x="58" y="52" width="84" height="58" rx="10" />
+                    <polygon class="topFill" points="92,52 108,52 100,66" />
+                  </g>
+                  <g id="top_sweat" style="display:block;">
+                    <rect class="topFill" x="56" y="52" width="88" height="64" rx="12" />
+                    <rect class="topFill" x="56" y="92" width="88" height="10" rx="5" />
+                  </g>
+                  <g id="top_hoodie" style="display:none;">
+                    <rect class="topFill" x="56" y="52" width="88" height="66" rx="12" />
+                    <path class="topFill" d="M78 52 Q100 28 122 52" />
+                  </g>
+                  <g id="top_knit" style="display:none;">
+                    <rect class="topFill" x="58" y="52" width="84" height="64" rx="12" />
+                    <rect class="topFill" x="58" y="104" width="84" height="8" rx="4" />
+                  </g>
+
+                  <!-- BOTTOMS -->
+                  <g id="bottom_slim" style="display:none;">
+                    <rect class="bottomFill" x="86" y="120" width="28" height="90" rx="10" />
+                    <rect class="bottomFill" x="72" y="120" width="24" height="90" rx="10" />
+                  </g>
+                  <g id="bottom_regular" style="display:block;">
+                    <rect class="bottomFill" x="84" y="120" width="34" height="92" rx="10" />
+                    <rect class="bottomFill" x="62" y="120" width="28" height="92" rx="10" />
+                  </g>
+                  <g id="bottom_wide" style="display:none;">
+                    <rect class="bottomFill" x="84" y="120" width="42" height="96" rx="10" />
+                    <rect class="bottomFill" x="54" y="120" width="36" height="96" rx="10" />
                   </g>
                 </svg>
               </div>
@@ -194,7 +665,7 @@
           </div>
 
           <div class="selectRow">
-            <div class="panelTitle pantsTitle" id="pantsTitle" style="font-size:13px; opacity:.9;">1) 하의 색 (5가지)</div>
+            <div class="panelTitle pantsTitle" id="pantsTitle" style="font-size:13px; opacity:.9;">1) 하의 색 (10가지)</div>
             <div class="pantsButtons attention" id="pantsButtons"></div>
           </div>
 
@@ -234,9 +705,1218 @@
         </div>
       </section>
     </section>
+
+    <section class="checkPanel" aria-label="검수 패널">
+      <div class="panelTitle">검수용 12조합(번호는 개발용)</div>
+      <div class="checkGrid" id="checkGrid"></div>
+    </section>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="main.js" defer></script>
+
+  <script>
+    // =========================================================
+    // 문자열
+    // =========================================================
+    const STRINGS = {
+      toast: {
+        needPants: "먼저 하의 색부터 선택하세요",
+        pantsSelected: (name) => `${name} 하의 선택 ✅`,
+        shirtApplied: (name) => `상의 ${name} 적용!`,
+        needPantsForBoom: "먼저 하의 색부터 선택해 주세요!",
+        fireworks: "폭죽 🎆 (화면 가득)"
+      },
+      callout: {
+        needPants: "하의 색을 먼저 선택해 주세요. 선택하면 오른쪽에 추천/비추/그닥 색이 나타납니다.",
+        needPantsShort: "하의 색을 먼저 선택해 주세요. (오른쪽 5가지 중 선택)",
+        pantsPicked: (name) => `지금 하의는 <b>${name}</b>입니다.<br/>오른쪽에서 상의 컬러를 <b>클릭</b>하면 조합 멘트가 표시됩니다.`
+      }
+    };
+
+    // =========================================================
+    // 팔레트(네온X, 다운톤)
+    // =========================================================
+    const COLORS = {
+      "녹색":   { hex:"#2F7D57" },
+      "파란색": { hex:"#2F5FAF" },
+      "노란색": { hex:"#D7A63A" },
+      "핑크":   { hex:"#D08AAA" },
+      "네이비": { hex:"#1D2B5B" },
+      "흰색":   { hex:"#F3F4F6" },
+      "진청":   { hex:"#1F3B6F" },
+      "흑청":   { hex:"#16233A" },
+      "연청":   { hex:"#82A9D6" },
+      "아이보리": { hex:"#F2EBDD" },
+      "크림":   { hex:"#F6E6C8" },
+      "베이지": { hex:"#C7B08B" },
+      "카키":   { hex:"#6B7B4E" },
+      "브라운": { hex:"#6B3F2A" },
+      "차콜":   { hex:"#3A3C43" },
+      "검정":   { hex:"#111318" }
+    };
+
+    // =========================================================
+    // 아이콘(이미지) - inline SVG data URI
+    // =========================================================
+    function svgDataUri(svg){
+      const encoded = encodeURIComponent(svg)
+        .replace(/'/g, "%27")
+        .replace(/"/g, "%22");
+      return `data:image/svg+xml;charset=utf-8,${encoded}`;
+    }
+    const ICON = {
+      heart: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 21
+               C12 21, 4 15.6, 4 9.8
+               C4 6.6, 6.4 4.5, 9.1 4.5
+               C10.9 4.5, 12 5.6, 12 5.6
+               C12 5.6, 13.1 4.5, 14.9 4.5
+               C17.6 4.5, 20 6.6, 20 9.8
+               C20 15.6, 12 21, 12 21 Z"
+            fill="#E11D48"
+          />
+        </svg>
+      `),
+      circle: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8.5" fill="#ffffff" />
+          <circle cx="12" cy="12" r="8.5" fill="none" stroke="#111827" stroke-width="2.4"/>
+        </svg>
+      `),
+      triangle: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M12 5.3 L20 19 H4 Z" fill="#ffffff" stroke="#111827" stroke-width="2.4" stroke-linejoin="round"/>
+        </svg>
+      `),
+      x: svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M6.5 6.5 L17.5 17.5" stroke="#DC2626" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M17.5 6.5 L6.5 17.5" stroke="#DC2626" stroke-width="3.2" stroke-linecap="round"/>
+        </svg>
+      `)
+    };
+
+    const GRADE = {
+      "강추": { icon: ICON.heart, phrase: "오늘 각이다" },
+      "괜찮음": { icon: ICON.circle, phrase: "낫 밷" },
+      "그닥": { icon: ICON.triangle, phrase: "상대방 반응 체크하자" },
+      "비추": { icon: ICON.x, phrase: "와 요즘은 콘돔이 이렇게도 나오네" }
+    };
+
+    const EDU_TEXT = {
+      contrast: "하의가 어두우면 상의는 밝게 가는 게 안전합니다.",
+      harmony: "같은 계열이라 튀지 않고 자연스럽습니다.",
+      point: "상의에 포인트를 줘서 시선이 분산됩니다.",
+      avoid: "이 조합은 촌스러워 보일 확률이 높습니다."
+    };
+
+    const STYLE_LINE = {
+      "셔츠":  "셔츠는 ‘깔끔함’이 이깁니다. 톤을 정돈하세요.",
+      "맨투맨":"맨투맨은 ‘무난함’이 정답입니다. 과한 색은 피하세요.",
+      "후드":"후드티는 ‘캐주얼’이 핵심입니다. 대비를 너무 세게 주지 마세요.",
+      "니트":  "니트는 ‘고급스러움’이 포인트입니다. 뉴트럴 톤이 안전합니다."
+    };
+
+    const SHIRT_GROUP = {
+      core: ["흰색","아이보리","크림","그레이","차콜","네이비","베이지"],
+      earth: ["브라운","카키"],
+      accent: ["파란색","노란색","핑크","녹색"]
+    };
+
+    function shirtBaseScore(shirtName, pantsName){
+      if (SHIRT_GROUP.core.indexOf(shirtName) !== -1) return 2;
+      if (SHIRT_GROUP.earth.indexOf(shirtName) !== -1) return 1;
+
+      // accent는 기본적으로 불리
+      if (SHIRT_GROUP.accent.indexOf(shirtName) !== -1){
+        // 단, 하의가 무채/중립이면 패널티 완화
+        if (pantsName === "검정" || pantsName === "차콜" || pantsName === "네이비" || pantsName === "베이지"){
+          return 0;
+        }
+        return -1;
+      }
+      return 0;
+    }
+
+    const EDU_CASES = [
+      {"pants":"검정","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"검정","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"검정","shirt":"크림","eduKey":"contrast","weight":3},
+      {"pants":"검정","shirt":"베이지","eduKey":"harmony","weight":2},
+      // 제외됨: pants=검정 shirt=그레이 (COLORS에 없음)
+      {"pants":"검정","shirt":"파란색","eduKey":"harmony","weight":2},
+      {"pants":"검정","shirt":"카키","eduKey":"point","weight":1},
+      {"pants":"검정","shirt":"브라운","eduKey":"point","weight":1},
+
+      {"pants":"차콜","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"차콜","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"차콜","shirt":"크림","eduKey":"contrast","weight":3},
+      {"pants":"차콜","shirt":"파란색","eduKey":"contrast","weight":3},
+      {"pants":"차콜","shirt":"네이비","eduKey":"harmony","weight":2},
+      // 제외됨: pants=차콜 shirt=그레이 (COLORS에 없음)
+      {"pants":"차콜","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"차콜","shirt":"브라운","eduKey":"point","weight":1},
+
+      {"pants":"네이비","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"네이비","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"네이비","shirt":"크림","eduKey":"contrast","weight":3},
+      {"pants":"네이비","shirt":"파란색","eduKey":"harmony","weight":2},
+      // 제외됨: pants=네이비 shirt=그레이 (COLORS에 없음)
+      {"pants":"네이비","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"네이비","shirt":"브라운","eduKey":"point","weight":1},
+      {"pants":"네이비","shirt":"카키","eduKey":"point","weight":1},
+
+      {"pants":"진청","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"진청","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"진청","shirt":"크림","eduKey":"contrast","weight":3},
+      {"pants":"진청","shirt":"파란색","eduKey":"harmony","weight":3},
+      // 제외됨: pants=진청 shirt=그레이 (COLORS에 없음)
+      {"pants":"진청","shirt":"차콜","eduKey":"harmony","weight":2},
+      {"pants":"진청","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"진청","shirt":"브라운","eduKey":"point","weight":1},
+
+      {"pants":"흑청","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"흑청","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"흑청","shirt":"크림","eduKey":"contrast","weight":3},
+      // 제외됨: pants=흑청 shirt=그레이 (COLORS에 없음)
+      {"pants":"흑청","shirt":"차콜","eduKey":"harmony","weight":2},
+      {"pants":"흑청","shirt":"파란색","eduKey":"harmony","weight":2},
+      {"pants":"흑청","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"흑청","shirt":"브라운","eduKey":"point","weight":1},
+
+      {"pants":"연청","shirt":"흰색","eduKey":"harmony","weight":3},
+      {"pants":"연청","shirt":"아이보리","eduKey":"harmony","weight":3},
+      {"pants":"연청","shirt":"크림","eduKey":"harmony","weight":2},
+      {"pants":"연청","shirt":"네이비","eduKey":"contrast","weight":3},
+      {"pants":"연청","shirt":"차콜","eduKey":"contrast","weight":2},
+      // 제외됨: pants=연청 shirt=그레이 (COLORS에 없음)
+      {"pants":"연청","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"연청","shirt":"파란색","eduKey":"harmony","weight":2},
+
+      {"pants":"베이지","shirt":"네이비","eduKey":"contrast","weight":3},
+      {"pants":"베이지","shirt":"파란색","eduKey":"contrast","weight":2},
+      {"pants":"베이지","shirt":"흰색","eduKey":"harmony","weight":3},
+      {"pants":"베이지","shirt":"아이보리","eduKey":"harmony","weight":3},
+      {"pants":"베이지","shirt":"크림","eduKey":"harmony","weight":2},
+      // 제외됨: pants=베이지 shirt=그레이 (COLORS에 없음)
+      {"pants":"베이지","shirt":"차콜","eduKey":"harmony","weight":2},
+      {"pants":"베이지","shirt":"브라운","eduKey":"harmony","weight":2},
+
+      {"pants":"아이보리","shirt":"네이비","eduKey":"contrast","weight":3},
+      {"pants":"아이보리","shirt":"차콜","eduKey":"contrast","weight":2},
+      // 제외됨: pants=아이보리 shirt=그레이 (COLORS에 없음)
+      {"pants":"아이보리","shirt":"파란색","eduKey":"harmony","weight":2},
+      {"pants":"아이보리","shirt":"브라운","eduKey":"harmony","weight":2},
+      {"pants":"아이보리","shirt":"카키","eduKey":"point","weight":1},
+      {"pants":"아이보리","shirt":"녹색","eduKey":"point","weight":1},
+      {"pants":"아이보리","shirt":"베이지","eduKey":"harmony","weight":2},
+
+      {"pants":"크림","shirt":"네이비","eduKey":"contrast","weight":3},
+      {"pants":"크림","shirt":"차콜","eduKey":"contrast","weight":2},
+      // 제외됨: pants=크림 shirt=그레이 (COLORS에 없음)
+      {"pants":"크림","shirt":"파란색","eduKey":"harmony","weight":2},
+      {"pants":"크림","shirt":"브라운","eduKey":"harmony","weight":2},
+      {"pants":"크림","shirt":"카키","eduKey":"point","weight":1},
+      {"pants":"크림","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"크림","shirt":"녹색","eduKey":"point","weight":1},
+
+      {"pants":"카키","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"카키","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"카키","shirt":"크림","eduKey":"contrast","weight":2},
+      {"pants":"카키","shirt":"네이비","eduKey":"harmony","weight":3},
+      {"pants":"카키","shirt":"파란색","eduKey":"harmony","weight":2},
+      // 제외됨: pants=카키 shirt=그레이 (COLORS에 없음)
+      {"pants":"카키","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"카키","shirt":"브라운","eduKey":"harmony","weight":2},
+
+      {"pants":"브라운","shirt":"흰색","eduKey":"contrast","weight":3},
+      {"pants":"브라운","shirt":"아이보리","eduKey":"contrast","weight":3},
+      {"pants":"브라운","shirt":"크림","eduKey":"contrast","weight":2},
+      {"pants":"브라운","shirt":"파란색","eduKey":"contrast","weight":3},
+      {"pants":"브라운","shirt":"네이비","eduKey":"harmony","weight":2},
+      // 제외됨: pants=브라운 shirt=그레이 (COLORS에 없음)
+      {"pants":"브라운","shirt":"베이지","eduKey":"harmony","weight":2},
+      {"pants":"브라운","shirt":"카키","eduKey":"harmony","weight":2}
+    ];
+
+    const EDU_BAD_CASES = [
+      /* 둘 다 너무 어두움(답답) */
+      {"pants":"검정","shirt":"네이비","weight":3},
+      {"pants":"검정","shirt":"차콜","weight":2},
+      {"pants":"검정","shirt":"흑청","weight":2},
+
+      {"pants":"네이비","shirt":"검정","weight":3},
+      {"pants":"네이비","shirt":"흑청","weight":2},
+      {"pants":"네이비","shirt":"차콜","weight":2},
+
+      {"pants":"차콜","shirt":"검정","weight":3},
+      {"pants":"차콜","shirt":"네이비","weight":2},
+      {"pants":"차콜","shirt":"흑청","weight":2},
+
+      {"pants":"흑청","shirt":"검정","weight":3},
+      {"pants":"흑청","shirt":"네이비","weight":2},
+      {"pants":"흑청","shirt":"흑청","weight":3},
+
+      /* 데님온데님(난이도) */
+      {"pants":"진청","shirt":"흑청","weight":2},
+      {"pants":"진청","shirt":"진청","weight":2},
+      {"pants":"연청","shirt":"연청","weight":2},
+
+      /* 톤 겹침(카키/그린 계열) */
+      {"pants":"카키","shirt":"녹색","weight":3},
+      {"pants":"카키","shirt":"카키","weight":2},
+      {"pants":"녹색","shirt":"카키","weight":2},
+
+      /* 포인트색이 애매한 하의에서 촌스러울 가능성 */
+      {"pants":"베이지","shirt":"노란색","weight":2},
+      {"pants":"베이지","shirt":"핑크","weight":2},
+      {"pants":"아이보리","shirt":"노란색","weight":2},
+      {"pants":"아이보리","shirt":"핑크","weight":2},
+      {"pants":"크림","shirt":"노란색","weight":2},
+      {"pants":"크림","shirt":"핑크","weight":2},
+      {"pants":"연청","shirt":"노란색","weight":2},
+      {"pants":"연청","shirt":"핑크","weight":2},
+
+      /* 브라운 + 카키 과하면 답답/촌스러움 가능 */
+      {"pants":"브라운","shirt":"카키","weight":2},
+      {"pants":"카키","shirt":"브라운","weight":2},
+
+      /* 차콜/검정 + 노란/핑크는 사람에 따라 튈 수 있어 경고 */
+      {"pants":"차콜","shirt":"노란색","weight":1},
+      {"pants":"차콜","shirt":"핑크","weight":1},
+      {"pants":"검정","shirt":"노란색","weight":1},
+      {"pants":"검정","shirt":"핑크","weight":1}
+    ];
+
+    // =========================================================
+    // 룰 데이터
+    // =========================================================
+    const RULES = {
+      "진청": {
+        good: [
+          { color:"파란색", grade:"강추" },
+          { color:"노란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"네이비", grade:"비추" }
+        ],
+        meh: [
+          { color:"핑크", grade:"괜찮음" },
+          { color:"흰색", grade:"강추" }
+        ]
+      },
+      "흑청": {
+        good: [
+          { color:"흰색", grade:"강추" },
+          { color:"노란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"네이비", grade:"비추" }
+        ],
+        meh: [
+          { color:"핑크", grade:"괜찮음" },
+          { color:"베이지", grade:"괜찮음" }
+        ]
+      },
+      "연청": {
+        good: [
+          { color:"녹색", grade:"강추" },
+          { color:"흰색", grade:"강추" }
+        ],
+        bad: [
+          { color:"노란색", grade:"비추" }
+        ],
+        meh: [
+          { color:"파란색", grade:"그닥" },
+          { color:"네이비", grade:"괜찮음" }
+        ]
+      },
+      "아이보리": {
+        good: [
+          { color:"네이비", grade:"강추" },
+          { color:"파란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"노란색", grade:"그닥" }
+        ],
+        meh: [
+          { color:"녹색", grade:"괜찮음" },
+          { color:"차콜", grade:"괜찮음" }
+        ]
+      },
+      "크림": {
+        good: [
+          { color:"네이비", grade:"강추" },
+          { color:"차콜", grade:"강추" }
+        ],
+        bad: [
+          { color:"노란색", grade:"그닥" }
+        ],
+        meh: [
+          { color:"파란색", grade:"괜찮음" },
+          { color:"핑크", grade:"괜찮음" }
+        ]
+      },
+      "베이지": {
+        good: [
+          { color:"네이비", grade:"강추" },
+          { color:"흰색", grade:"강추" }
+        ],
+        bad: [
+          { color:"핑크", grade:"그닥" },
+          { color:"노란색", grade:"그닥" }
+        ],
+        meh: [
+          { color:"녹색", grade:"괜찮음" },
+          { color:"파란색", grade:"괜찮음" }
+        ]
+      },
+      "카키": {
+        good: [
+          { color:"흰색", grade:"강추" },
+          { color:"네이비", grade:"강추" }
+        ],
+        bad: [
+          { color:"녹색", grade:"비추" }
+        ],
+        meh: [
+          { color:"파란색", grade:"괜찮음" },
+          { color:"노란색", grade:"그닥" }
+        ]
+      },
+      "브라운": {
+        good: [
+          { color:"흰색", grade:"강추" },
+          { color:"파란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"검정", grade:"그닥" }
+        ],
+        meh: [
+          { color:"베이지", grade:"괜찮음" },
+          { color:"노란색", grade:"괜찮음" }
+        ]
+      },
+      "차콜": {
+        good: [
+          { color:"네이비", grade:"강추" },
+          { color:"노란색", grade:"괜찮음" }
+        ],
+        bad: [
+          { color:"녹색", grade:"비추" },
+          { color:"파란색", grade:"비추" }
+        ],
+        meh: [
+          { color:"핑크", grade:"그닥" },
+          { color:"흰색", grade:"괜찮음" }
+        ]
+      },
+      "검정": {
+        good: [
+          { color:"흰색", grade:"강추" },
+          { color:"노란색", grade:"강추" }
+        ],
+        bad: [
+          { color:"네이비", grade:"그닥" },
+          { color:"녹색", grade:"그닥" }
+        ],
+        meh: [
+          { color:"파란색", grade:"괜찮음" },
+          { color:"핑크", grade:"괜찮음" }
+        ]
+      }
+    };
+
+    const CHECK_12 = [
+      {n:1, top:"니트", fit:"슬림"},
+      {n:2, top:"니트", fit:"레귤러"},
+      {n:3, top:"니트", fit:"와이드"},
+      {n:4, top:"셔츠", fit:"슬림"},
+      {n:5, top:"셔츠", fit:"레귤러"},
+      {n:6, top:"셔츠", fit:"와이드"},
+      {n:7, top:"후드", fit:"슬림"},
+      {n:8, top:"후드", fit:"레귤러"},
+      {n:9, top:"후드", fit:"와이드"},
+      {n:10, top:"맨투맨", fit:"슬림"},
+      {n:11, top:"맨투맨", fit:"레귤러"},
+      {n:12, top:"맨투맨", fit:"와이드"}
+    ];
+
+    // =========================================================
+    // 유틸
+    // =========================================================
+    function validateRules(){
+      const missing = [];
+      Object.entries(RULES).forEach(([pants, rule]) => {
+        [pants].forEach((name)=>{
+          if (!COLORS[name]) missing.push(name);
+        });
+
+        const groups = [rule.good, rule.bad, rule.meh].filter(Boolean);
+        groups.forEach(list => {
+          list.forEach(item => {
+            if (!COLORS[item.color]) missing.push(item.color);
+          });
+        });
+      });
+
+      if (missing.length){
+        const unique = [...new Set(missing)];
+        console.warn("RULES에 정의된 색이 COLORS에 없습니다:", unique);
+      }
+    }
+
+    // =========================================================
+    // 대비 계산
+    // =========================================================
+    function hexToRgb(hex){
+      const h = hex.replace("#","").trim();
+      const full = h.length===3 ? h.split("").map(c=>c+c).join("") : h;
+      const n = parseInt(full, 16);
+      return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+    }
+    function relLuminance(hex){
+      const {r,g,b} = hexToRgb(hex);
+      const srgb = [r,g,b].map(v=>{
+        const c = v/255;
+        return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+      });
+      return 0.2126*srgb[0] + 0.7152*srgb[1] + 0.0722*srgb[2];
+    }
+    function isDark(hex){ return relLuminance(hex) < 0.42; }
+
+    function chipStyle(hex){
+      const dark = isDark(hex);
+      return {
+        text: dark ? "rgba(255,255,255,.94)" : "rgba(15,23,42,.92)",
+        border: dark ? "rgba(255,255,255,.22)" : "rgba(15,23,42,.14)",
+        markBg: "rgba(255,255,255,.92)",
+        bgTop: hex,
+        bgBottom: hex + "cc"
+      };
+    }
+
+    function getEduKey(pantsName, shirtName, grade){
+      // 기본값: contrast
+      const pantsHex = COLORS[pantsName] ? COLORS[pantsName].hex : null;
+      const shirtHex = COLORS[shirtName] ? COLORS[shirtName].hex : null;
+      if (!pantsHex || !shirtHex) return "contrast";
+
+      const pantsDark = isDark(pantsHex);
+      const shirtDark = isDark(shirtHex);
+
+      // 1) 밝기 대비: 하의 어두움 + 상의 밝음 또는 하의 밝음 + 상의 어두움
+      if (pantsDark !== shirtDark) return "contrast";
+
+      // 2) 실패 회피: 둘 다 어두우면(답답해 보일 확률) + 비추/그닥일 때만
+      if ((grade === "비추" || grade === "그닥") && pantsDark && shirtDark) return "avoid";
+
+      // 3) 포인트 배치: 둘 다 밝은데 노란색/핑크 같이 눈에 띄는 상의면 포인트로 처리
+      if (!pantsDark && !shirtDark && (shirtName === "노란색" || shirtName === "핑크")) return "point";
+
+      // 4) 색 계열 통일: 나머지는 harmony
+      return "harmony";
+    }
+
+    function getStyleLine(selectedTopType){
+      if (!selectedTopType) return "";
+      return STYLE_LINE[selectedTopType] || "";
+    }
+
+    function findEduKeyFromCases(pantsName, shirtName){
+      for (var i=0;i<EDU_CASES.length;i++){
+        var c = EDU_CASES[i];
+        if (c.pants === pantsName && c.shirt === shirtName) return c.eduKey;
+      }
+      return null;
+    }
+
+    function caseWeight(pantsName, shirtName){
+      for (var i=0;i<EDU_CASES.length;i++){
+        var c = EDU_CASES[i];
+        if (c.pants === pantsName && c.shirt === shirtName) return c.weight || 1;
+      }
+      return 0;
+    }
+
+    function badWeight(pantsName, shirtName){
+      for (var i=0;i<EDU_BAD_CASES.length;i++){
+        var c = EDU_BAD_CASES[i];
+        if (c.pants === pantsName && c.shirt === shirtName) return c.weight || 1;
+      }
+      return 0;
+    }
+
+    // =========================================================
+    // 레이어 토글/색칠
+    // =========================================================
+    const topMap = { "니트":"top_knit", "셔츠":"top_shirt", "후드":"top_hoodie", "맨투맨":"top_sweat" };
+    const botMap = { "슬림":"bottom_slim", "레귤러":"bottom_regular", "와이드":"bottom_wide" };
+
+    function showOnly(idsToShow){
+      const all = ["top_knit","top_shirt","top_hoodie","top_sweat","bottom_slim","bottom_regular","bottom_wide"];
+      all.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.style.display = idsToShow.indexOf(id) !== -1 ? "block" : "none";
+      });
+    }
+
+    function applyStyleLayers(selectedTopType, selectedBottomFit){
+      const topId = topMap[selectedTopType] || "top_sweat";
+      const botId = botMap[selectedBottomFit] || "bottom_regular";
+      showOnly([topId, botId]);
+    }
+
+    function paintTop(selectedTopType, hex){
+      const topId = topMap[selectedTopType] || "top_sweat";
+      const el = document.querySelector(`#${topId} .topFill`);
+      if (el) el.setAttribute("fill", hex);
+    }
+
+    function paintBottom(selectedBottomFit, hex){
+      const botId = botMap[selectedBottomFit] || "bottom_regular";
+      const el = document.querySelector(`#${botId} .bottomFill`);
+      if (el) el.setAttribute("fill", hex);
+    }
+
+    // =========================================================
+    // App
+    // =========================================================
+    const App = {
+      state: {
+        selectedPants: null,
+        selectedShirt: null,
+        selectedGrade: null,
+        selectedBottomFit: "레귤러",
+        selectedTopType: "맨투맨",
+        reduceMotion: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      },
+
+      el: {},
+
+      init(){
+        this.cacheEls();
+        this.bindStatic();
+        this.setupIcons();
+        this.makePantsButtons();
+        this.makeBottomFitButtons();
+        this.makeTopTypeButtons();
+        applyStyleLayers(this.state.selectedTopType, this.state.selectedBottomFit);
+        this.setNeedsPants(true);
+
+        this.el.goodChips.innerHTML = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+        this.el.badChips.innerHTML  = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+        this.el.mehChips.innerHTML  = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+
+        this.renderCheckPanel();
+        validateRules();
+      },
+
+      cacheEls(){
+        this.el = {
+          pantsButtons: document.getElementById("pantsButtons"),
+          bottomFitButtons: document.getElementById("bottomFitButtons"),
+          topTypeButtons: document.getElementById("topTypeButtons"),
+          goodChips: document.getElementById("goodChips"),
+          badChips: document.getElementById("badChips"),
+          mehChips: document.getElementById("mehChips"),
+          statePill: document.getElementById("statePill"),
+          shirtPill: document.getElementById("shirtPill"),
+          fitPill: document.getElementById("fitPill"),
+          topTypePill: document.getElementById("topTypePill"),
+          statusCallout: document.getElementById("statusCallout"),
+          pantsPickBanner: document.getElementById("pantsPickBanner"),
+          btnFocusPants: document.getElementById("btnFocusPants"),
+          pantsTitle: document.getElementById("pantsTitle"),
+          rightPanel: document.getElementById("rightPanel"),
+          btnBoom: document.getElementById("btnBoom"),
+          toast: document.getElementById("toast"),
+          fxCanvas: document.getElementById("fxCanvas"),
+          legendHeart: document.getElementById("legendHeart"),
+          legendCircle: document.getElementById("legendCircle"),
+          legendTriangle: document.getElementById("legendTriangle"),
+          legendX: document.getElementById("legendX"),
+          checkGrid: document.getElementById("checkGrid")
+        };
+      },
+
+      bindStatic(){
+        this.el.btnFocusPants.addEventListener("click", ()=>{
+          this.el.pantsTitle.scrollIntoView({ behavior:"smooth", block:"center" });
+          const firstBtn = this.el.pantsButtons.querySelector("button");
+          if (firstBtn) firstBtn.focus({ preventScroll:true });
+        });
+
+        this.el.btnBoom.addEventListener("click", ()=>{
+          if(!this.state.selectedPants){
+            this.showToast(STRINGS.toast.needPantsForBoom);
+            this.el.statusCallout.textContent = STRINGS.callout.needPantsShort;
+            this.setNeedsPants(true);
+            return;
+          }
+          this.fireworks();
+          this.playPop();
+          this.showToast(STRINGS.toast.fireworks);
+        });
+
+        if (this.el.fxCanvas){
+          this.fxCtx = this.el.fxCanvas.getContext("2d");
+          this.fitFxCanvas();
+          window.addEventListener("resize", ()=> this.fitFxCanvas());
+        }
+      },
+
+      setupIcons(){
+        this.el.legendHeart.src = ICON.heart;
+        this.el.legendCircle.src = ICON.circle;
+        this.el.legendTriangle.src = ICON.triangle;
+        this.el.legendX.src = ICON.x;
+      },
+
+      showToast(msg){
+        this.el.toast.textContent = msg;
+        this.el.toast.classList.add("show");
+        clearTimeout(this.toastTimer);
+        this.toastTimer = setTimeout(()=> this.el.toast.classList.remove("show"), 1400);
+      },
+
+      setNeedsPants(on){
+        if (on){
+          this.el.pantsPickBanner.classList.add("show");
+          this.el.pantsButtons.classList.add("attention");
+          this.el.rightPanel.classList.add("needsPants");
+          this.showToast(STRINGS.toast.needPants);
+        }else{
+          this.el.pantsPickBanner.classList.remove("show");
+          this.el.pantsButtons.classList.remove("attention");
+          this.el.rightPanel.classList.remove("needsPants");
+        }
+      },
+
+      makePantsButtons(){
+        const pantsList = ["진청","흑청","연청","아이보리","크림","베이지","카키","브라운","차콜","검정"];
+        this.el.pantsButtons.innerHTML = "";
+        pantsList.forEach(name=>{
+          const b = document.createElement("button");
+          b.className = "btn";
+          b.type = "button";
+          b.setAttribute("data-color", name);
+          b.innerHTML = `<span>${name}</span><span class="swatch" style="background:${COLORS[name].hex}"></span>`;
+          b.addEventListener("click", ()=> this.selectPants(name));
+          this.el.pantsButtons.appendChild(b);
+        });
+      },
+
+      makeBottomFitButtons(){
+        const fits = ["슬림","레귤러","와이드"];
+        this.el.bottomFitButtons.innerHTML = "";
+        fits.forEach(name=>{
+          const b = document.createElement("button");
+          b.className = "btn";
+          b.type = "button";
+          b.textContent = name;
+          if (name === this.state.selectedBottomFit) b.classList.add("selected");
+          b.addEventListener("click", ()=> this.selectBottomFit(name));
+          this.el.bottomFitButtons.appendChild(b);
+        });
+        this.el.fitPill.textContent = "하의 핏: " + this.state.selectedBottomFit;
+      },
+
+      makeTopTypeButtons(){
+        const types = ["셔츠","맨투맨","후드","니트"];
+        this.el.topTypeButtons.innerHTML = "";
+        types.forEach(name=>{
+          const b = document.createElement("button");
+          b.className = "btn";
+          b.type = "button";
+          b.textContent = name;
+          if (name === this.state.selectedTopType) b.classList.add("selected");
+          b.addEventListener("click", ()=> this.selectTopType(name));
+          this.el.topTypeButtons.appendChild(b);
+        });
+        this.el.topTypePill.textContent = "상의 종류: " + this.state.selectedTopType;
+      },
+
+      updateSelectedButtons(container, selectedText){
+        const btns = container.querySelectorAll("button");
+        btns.forEach(btn => {
+          if (btn.textContent === selectedText) btn.classList.add("selected");
+          else btn.classList.remove("selected");
+        });
+      },
+
+      sortByWeight(list, pantsName, weightFn, priorityColors, baseScoreFn){
+        const items = list ? list.slice() : [];
+        if (!items.length) return [];
+        const pri = priorityColors || [];
+        return items
+          .map((item, idx)=> ({ item, idx }))
+          .sort((a, b)=>{
+            const wa = weightFn(pantsName, a.item.color);
+            const wb = weightFn(pantsName, b.item.color);
+            const sa = baseScoreFn ? baseScoreFn(a.item.color, pantsName) : 0;
+            const sb = baseScoreFn ? baseScoreFn(b.item.color, pantsName) : 0;
+            const scoreA = (wa * 10) + sa;
+            const scoreB = (wb * 10) + sb;
+            if (scoreB !== scoreA) return scoreB - scoreA;
+            if (pri.length){
+              const pa = pri.indexOf(a.item.color);
+              const pb = pri.indexOf(b.item.color);
+              const aPri = pa === -1 ? 999 : pa;
+              const bPri = pb === -1 ? 999 : pb;
+              if (aPri !== bPri) return aPri - bPri;
+            }
+            return a.idx - b.idx;
+          })
+          .map(x => x.item);
+      },
+
+      adjustListsForSelections(rule){
+        const pantsName = this.state.selectedPants;
+        let boostColors = null;
+        if (this.state.selectedTopType === "셔츠") boostColors = ["흰색","파란색"];
+        else if (this.state.selectedTopType === "후드" || this.state.selectedTopType === "맨투맨") boostColors = ["차콜","베이지"];
+        else if (this.state.selectedTopType === "니트") boostColors = ["흰색","베이지"];
+
+        const good = this.sortByWeight(rule.good || [], pantsName, caseWeight, boostColors, shirtBaseScore);
+        const meh = this.sortByWeight(rule.meh || [], pantsName, caseWeight, boostColors, shirtBaseScore);
+        const bad = this.sortByWeight(rule.bad || [], pantsName, badWeight, null);
+
+        return { good, bad, meh };
+      },
+
+      refreshRecommendations(){
+        if (!this.state.selectedPants) return;
+        const r = RULES[this.state.selectedPants];
+        const adjusted = this.adjustListsForSelections(r);
+        const goodList = adjusted.good ? adjusted.good.slice() : [];
+        if (goodList.length < 4){
+          const extras = (adjusted.meh || []).filter(it => !goodList.some(g => g.color === it.color));
+          while (goodList.length < 4 && extras.length){
+            goodList.push(extras.shift());
+          }
+        }
+        this.renderChips(this.el.goodChips, goodList, 4);
+        let badList = (adjusted.bad && adjusted.bad.length) ? adjusted.bad.slice() : [];
+        if (!badList.length && adjusted.meh && adjusted.meh.length) badList = adjusted.meh.slice(0,2);
+        badList = this.sortByWeight(badList, this.state.selectedPants, badWeight, null);
+        this.renderChips(this.el.badChips, badList, 2);
+        this.renderChips(this.el.mehChips, adjusted.meh || [], 2);
+      },
+
+      renderStatusCallout(grade, colorName){
+        const iconSrc = (GRADE[grade] && GRADE[grade].icon) ? GRADE[grade].icon : ICON.circle;
+        const phrase = (GRADE[grade] && GRADE[grade].phrase) ? GRADE[grade].phrase : "";
+        const bw = badWeight(this.state.selectedPants, colorName);
+        const caseKey = findEduKeyFromCases(this.state.selectedPants, colorName);
+        let eduKey;
+        if (bw > 0) eduKey = "avoid";
+        else if (caseKey) eduKey = caseKey;
+        else eduKey = getEduKey(this.state.selectedPants, colorName, grade);
+        const eduLine = EDU_TEXT[eduKey] || EDU_TEXT.contrast;
+        const pantsLabel = this.formatWithOption(this.state.selectedPants, this.state.selectedBottomFit);
+        const shirtLabel = this.formatWithOption(colorName, this.state.selectedTopType);
+        const styleLine = getStyleLine(this.state.selectedTopType);
+        const styleHtml = styleLine
+          ? `<div style="color: rgba(15,23,42,.70); font-size:12px; line-height:1.4;">스타일: ${styleLine}</div>`
+          : "";
+
+        this.el.statusCallout.innerHTML = `
+          <div style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+            <span class="badgeIcon">
+              <img class="iconImg" src="${iconSrc}" alt="${grade} 아이콘" />
+              <b>${grade}</b>
+            </span>
+            <div style="display:grid; gap:4px;">
+              <div style="color: rgba(15,23,42,.86); font-size:12px; line-height:1.4;">
+                <b>${pantsLabel}</b> + <b>${shirtLabel}</b>
+              </div>
+              <div style="color: rgba(15,23,42,.70); font-size:12px; line-height:1.45;">
+                ${phrase}
+              </div>
+              <div style="color: rgba(15,23,42,.62); font-size:11px; line-height:1.35;">
+                이유: ${eduLine}
+              </div>
+              ${styleHtml}
+            </div>
+          </div>
+        `;
+      },
+
+      updateStatusCallout(){
+        if (this.state.selectedPants && this.state.selectedShirt && this.state.selectedGrade){
+          this.renderStatusCallout(this.state.selectedGrade, this.state.selectedShirt);
+          return;
+        }
+        if (this.state.selectedPants){
+          const styleLine = getStyleLine(this.state.selectedTopType);
+          const styleHtml = styleLine
+            ? `<div style="margin-top:6px; color: rgba(15,23,42,.70); font-size:12px; line-height:1.4;">스타일: ${styleLine}</div>`
+            : "";
+          this.el.statusCallout.innerHTML = STRINGS.callout.pantsPicked(this.state.selectedPants) + styleHtml;
+        }
+      },
+
+      renderChips(el, items, limit){
+        el.innerHTML = "";
+        if (!this.state.selectedPants){
+          el.innerHTML = `<div class="muted">하의 색을 먼저 선택하세요.</div>`;
+          return;
+        }
+        if (!items || items.length === 0){
+          el.innerHTML = `<div class="muted">없음</div>`;
+          return;
+        }
+
+        const max = typeof limit === "number" ? limit : 2;
+        items.slice(0, max).forEach(it=>{
+          const hex = COLORS[it.color].hex;
+          const s = chipStyle(hex);
+
+          const c = document.createElement("div");
+          c.className = "chip";
+          c.setAttribute("role","button");
+          c.setAttribute("tabindex","0");
+
+          c.style.background = `linear-gradient(180deg, ${s.bgTop}, ${s.bgBottom})`;
+          c.style.color = s.text;
+          c.style.borderColor = s.border;
+
+          const iconSrc = (GRADE[it.grade] && GRADE[it.grade].icon) ? GRADE[it.grade].icon : ICON.circle;
+
+          c.innerHTML = `
+            <span class="mark" style="background:${s.markBg}">
+              <img src="${iconSrc}" alt="${it.grade} 아이콘"/>
+            </span>
+            <span>${it.color}</span>
+          `;
+
+          const apply = ()=> this.applyShirt(it.color, it.grade);
+          c.addEventListener("click", apply);
+          c.addEventListener("keydown", (e)=>{
+            if (e.key === "Enter" || e.key === " "){
+              e.preventDefault();
+              apply();
+            }
+          });
+
+          el.appendChild(c);
+        });
+      },
+
+      selectPants(name){
+        this.state.selectedPants = name;
+        this.el.statePill.textContent = "하의 선택: " + name;
+        paintBottom(this.state.selectedBottomFit, COLORS[name].hex);
+        const btns = this.el.pantsButtons.querySelectorAll("button");
+        btns.forEach(btn => {
+          if (btn.getAttribute("data-color") === name) btn.classList.add("selected");
+          else btn.classList.remove("selected");
+        });
+
+        this.state.selectedShirt = null;
+        this.el.shirtPill.textContent = "상의 선택: 아직";
+
+        this.setNeedsPants(false);
+        this.refreshRecommendations();
+        this.updateStatusCallout();
+        this.showToast(STRINGS.toast.pantsSelected(name));
+      },
+
+      selectBottomFit(name){
+        this.state.selectedBottomFit = name;
+        this.el.fitPill.textContent = "하의 핏: " + name;
+        this.updateSelectedButtons(this.el.bottomFitButtons, name);
+        applyStyleLayers(this.state.selectedTopType, this.state.selectedBottomFit);
+        if (this.state.selectedPants){
+          paintBottom(this.state.selectedBottomFit, COLORS[this.state.selectedPants].hex);
+        }
+        this.showToast(`${name} 선택 ✅`);
+        this.refreshRecommendations();
+        this.updateStatusCallout();
+      },
+
+      selectTopType(name){
+        this.state.selectedTopType = name;
+        this.el.topTypePill.textContent = "상의 종류: " + name;
+        this.updateSelectedButtons(this.el.topTypeButtons, name);
+        applyStyleLayers(this.state.selectedTopType, this.state.selectedBottomFit);
+        if (this.state.selectedShirt){
+          paintTop(this.state.selectedTopType, COLORS[this.state.selectedShirt].hex);
+        }
+        this.showToast(`${name} 선택 ✅`);
+        this.refreshRecommendations();
+        this.updateStatusCallout();
+      },
+
+      formatWithOption(base, opt){
+        return opt ? `${base}(${opt})` : base;
+      },
+
+      applyShirt(colorName, grade){
+        this.state.selectedShirt = colorName;
+        this.state.selectedGrade = grade;
+        paintTop(this.state.selectedTopType, COLORS[colorName].hex);
+        this.el.shirtPill.textContent = "상의 선택: " + colorName;
+        this.renderStatusCallout(grade, colorName);
+        this.showToast(STRINGS.toast.shirtApplied(colorName));
+      },
+
+      fitFxCanvas(){
+        if (!this.el.fxCanvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        this.viewport = { w: window.innerWidth, h: window.innerHeight };
+        this.el.fxCanvas.width = Math.floor(this.viewport.w * dpr);
+        this.el.fxCanvas.height = Math.floor(this.viewport.h * dpr);
+        this.el.fxCanvas.style.width = this.viewport.w + "px";
+        this.el.fxCanvas.style.height = this.viewport.h + "px";
+        this.fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      },
+
+      rand(min, max){ return Math.random() * (max - min) + min; },
+
+      playPop(){
+        if (this.state.reduceMotion) return;
+        try{
+          if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const t0 = this.audioCtx.currentTime;
+
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(520, t0);
+          osc.frequency.exponentialRampToValueAtTime(180, t0 + 0.08);
+          gain.gain.setValueAtTime(0.0001, t0);
+          gain.gain.exponentialRampToValueAtTime(0.30, t0 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+          osc.connect(gain).connect(this.audioCtx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.14);
+
+          const bufferSize = 2 * this.audioCtx.sampleRate;
+          const noiseBuffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * 0.18;
+
+          const noise = this.audioCtx.createBufferSource();
+          noise.buffer = noiseBuffer;
+
+          const nGain = this.audioCtx.createGain();
+          nGain.gain.setValueAtTime(0.0001, t0);
+          nGain.gain.exponentialRampToValueAtTime(0.12, t0 + 0.02);
+          nGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+
+          const filter = this.audioCtx.createBiquadFilter();
+          filter.type = "highpass";
+          filter.frequency.setValueAtTime(900, t0);
+
+          noise.connect(filter).connect(nGain).connect(this.audioCtx.destination);
+          noise.start(t0);
+          noise.stop(t0 + 0.24);
+        }catch(e){}
+      },
+
+      fireworks(){
+        if (this.state.reduceMotion || !this.fxCtx || !this.viewport) return;
+
+        const bursts = 6;
+        const totalParticlesPerBurst = 220;
+        const gravity = 0.18;
+        const drag = 0.992;
+
+        let particles = [];
+        for (let b=0;b<bursts;b++){
+          const cx = this.rand(this.viewport.w*0.15, this.viewport.w*0.85);
+          const cy = this.rand(this.viewport.h*0.15, this.viewport.h*0.65);
+          for (let i=0;i<totalParticlesPerBurst;i++){
+            const a = this.rand(0, Math.PI*2);
+            const s = this.rand(4.5, 12.5);
+            particles.push({
+              x: cx, y: cy,
+              vx: Math.cos(a) * s,
+              vy: Math.sin(a) * s - this.rand(2, 8),
+              r: this.rand(1.8, 3.8),
+              life: this.rand(60, 115),
+              hue: this.rand(0, 360)
+            });
+          }
+        }
+
+        const tick = ()=>{
+          this.fxCtx.clearRect(0,0,this.viewport.w,this.viewport.h);
+
+          let alive = 0;
+          for (const p of particles){
+            if (p.life <= 0) continue;
+            alive++;
+
+            p.vx *= drag;
+            p.vy = p.vy * drag + gravity;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 1;
+
+            const a = Math.max(0, p.life / 120);
+            this.fxCtx.globalAlpha = a;
+
+            this.fxCtx.beginPath();
+            this.fxCtx.fillStyle = `hsl(${p.hue}, 85%, 60%)`;
+            this.fxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            this.fxCtx.fill();
+          }
+
+          if (alive > 0) requestAnimationFrame(tick);
+          else this.fxCtx.clearRect(0,0,this.viewport.w,this.viewport.h);
+        };
+        requestAnimationFrame(tick);
+      },
+
+      renderCheckPanel(){
+        if (!this.el.checkGrid) return;
+        this.el.checkGrid.innerHTML = "";
+        CHECK_12.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "checkCard";
+          const num = document.createElement("div");
+          num.className = "checkNum";
+          num.textContent = item.n;
+          const svg = this.buildCheckSvg(item.top, item.fit);
+          card.appendChild(num);
+          card.appendChild(svg);
+          this.el.checkGrid.appendChild(card);
+        });
+      },
+
+      buildCheckSvg(topType, fit){
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("viewBox", "0 0 200 260");
+        svg.setAttribute("width", "90");
+        svg.setAttribute("height", "110");
+
+        const base = document.createElementNS(svgNS, "g");
+        base.setAttribute("id", "baseMan");
+        const head = document.createElementNS(svgNS, "circle");
+        head.setAttribute("cx", "100");
+        head.setAttribute("cy", "28");
+        head.setAttribute("r", "16");
+        const torso = document.createElementNS(svgNS, "rect");
+        torso.setAttribute("x", "70");
+        torso.setAttribute("y", "45");
+        torso.setAttribute("width", "60");
+        torso.setAttribute("height", "60");
+        torso.setAttribute("rx", "12");
+        const neck = document.createElementNS(svgNS, "rect");
+        neck.setAttribute("x", "82");
+        neck.setAttribute("y", "105");
+        neck.setAttribute("width", "36");
+        neck.setAttribute("height", "14");
+        neck.setAttribute("rx", "6");
+        base.appendChild(head);
+        base.appendChild(torso);
+        base.appendChild(neck);
+        svg.appendChild(base);
+
+        const topIds = {
+          "셔츠": "top_shirt",
+          "맨투맨": "top_sweat",
+          "후드": "top_hoodie",
+          "니트": "top_knit"
+        };
+        const bottomIds = {
+          "슬림": "bottom_slim",
+          "레귤러": "bottom_regular",
+          "와이드": "bottom_wide"
+        };
+
+        const makeRect = (x,y,w,h,rx)=>{
+          const r = document.createElementNS(svgNS, "rect");
+          r.setAttribute("x", x);
+          r.setAttribute("y", y);
+          r.setAttribute("width", w);
+          r.setAttribute("height", h);
+          r.setAttribute("rx", rx);
+          r.setAttribute("class", "topFill");
+          return r;
+        };
+
+        const top_shirt = document.createElementNS(svgNS, "g");
+        top_shirt.setAttribute("id", "top_shirt");
+        top_shirt.style.display = topIds[topType] === "top_shirt" ? "block" : "none";
+        top_shirt.appendChild(makeRect("58","52","84","58","10"));
+        const collar = document.createElementNS(svgNS, "polygon");
+        collar.setAttribute("points", "92,52 108,52 100,66");
+        collar.setAttribute("class", "topFill");
+        top_shirt.appendChild(collar);
+        svg.appendChild(top_shirt);
+
+        const top_sweat = document.createElementNS(svgNS, "g");
+        top_sweat.setAttribute("id", "top_sweat");
+        top_sweat.style.display = topIds[topType] === "top_sweat" ? "block" : "none";
+        top_sweat.appendChild(makeRect("56","52","88","64","12"));
+        top_sweat.appendChild(makeRect("56","92","88","10","5"));
+        svg.appendChild(top_sweat);
+
+        const top_hoodie = document.createElementNS(svgNS, "g");
+        top_hoodie.setAttribute("id", "top_hoodie");
+        top_hoodie.style.display = topIds[topType] === "top_hoodie" ? "block" : "none";
+        top_hoodie.appendChild(makeRect("56","52","88","66","12"));
+        const hood = document.createElementNS(svgNS, "path");
+        hood.setAttribute("d", "M78 52 Q100 28 122 52");
+        hood.setAttribute("class", "topFill");
+        top_hoodie.appendChild(hood);
+        svg.appendChild(top_hoodie);
+
+        const top_knit = document.createElementNS(svgNS, "g");
+        top_knit.setAttribute("id", "top_knit");
+        top_knit.style.display = topIds[topType] === "top_knit" ? "block" : "none";
+        top_knit.appendChild(makeRect("58","52","84","64","12"));
+        top_knit.appendChild(makeRect("58","104","84","8","4"));
+        svg.appendChild(top_knit);
+
+        const makeBottom = (x,y,w,h,rx)=>{
+          const r = document.createElementNS(svgNS, "rect");
+          r.setAttribute("x", x);
+          r.setAttribute("y", y);
+          r.setAttribute("width", w);
+          r.setAttribute("height", h);
+          r.setAttribute("rx", rx);
+          r.setAttribute("class", "bottomFill");
+          return r;
+        };
+
+        const bottom_slim = document.createElementNS(svgNS, "g");
+        bottom_slim.setAttribute("id", "bottom_slim");
+        bottom_slim.style.display = bottomIds[fit] === "bottom_slim" ? "block" : "none";
+        bottom_slim.appendChild(makeBottom("86","120","28","90","10"));
+        bottom_slim.appendChild(makeBottom("72","120","24","90","10"));
+        svg.appendChild(bottom_slim);
+
+        const bottom_regular = document.createElementNS(svgNS, "g");
+        bottom_regular.setAttribute("id", "bottom_regular");
+        bottom_regular.style.display = bottomIds[fit] === "bottom_regular" ? "block" : "none";
+        bottom_regular.appendChild(makeBottom("84","120","34","92","10"));
+        bottom_regular.appendChild(makeBottom("62","120","28","92","10"));
+        svg.appendChild(bottom_regular);
+
+        const bottom_wide = document.createElementNS(svgNS, "g");
+        bottom_wide.setAttribute("id", "bottom_wide");
+        bottom_wide.style.display = bottomIds[fit] === "bottom_wide" ? "block" : "none";
+        bottom_wide.appendChild(makeBottom("84","120","42","96","10"));
+        bottom_wide.appendChild(makeBottom("54","120","36","96","10"));
+        svg.appendChild(bottom_wide);
+
+        return svg;
+      }
+    };
+
+    // =========================================================
+    // 초기화
+    // =========================================================
+    App.init();
+  </script>
 </body>
 </html>

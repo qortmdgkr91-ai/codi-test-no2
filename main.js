@@ -88,6 +88,13 @@ const GRADE = {
   "비추": { icon: ICON.x, phrase: "와 요즘은 콘돔이 이렇게도 나오네" }
 };
 
+const EDU_TEXT = {
+  contrast: "하의가 어두우면 상의는 밝게 가는 게 안전합니다.",
+  harmony: "같은 계열이라 튀지 않고 자연스럽습니다.",
+  point: "상의에 포인트를 줘서 시선이 분산됩니다.",
+  avoid: "이 조합은 촌해 보일 확률이 높습니다."
+};
+
 // =========================================================
 // 룰 데이터
 // =========================================================
@@ -279,6 +286,28 @@ function chipStyle(hex){
     bgTop: hex,
     bgBottom: hex + "cc"
   };
+}
+
+function getEduKey(pantsName, shirtName){
+  // 기본값: contrast
+  const pantsHex = COLORS[pantsName]?.hex;
+  const shirtHex = COLORS[shirtName]?.hex;
+  if (!pantsHex || !shirtHex) return "contrast";
+
+  const pantsDark = isDark(pantsHex);
+  const shirtDark = isDark(shirtHex);
+
+  // 1) 밝기 대비: 하의 어두움 + 상의 밝음 또는 하의 밝음 + 상의 어두움
+  if (pantsDark !== shirtDark) return "contrast";
+
+  // 2) 실패 회피: 둘 다 어두우면(답답해 보일 확률)
+  if (pantsDark && shirtDark) return "avoid";
+
+  // 3) 포인트 배치: 둘 다 밝은데 노란색/핑크 같이 눈에 띄는 상의면 포인트로 처리
+  if (!pantsDark && !shirtDark && (shirtName === "노란색" || shirtName === "핑크")) return "point";
+
+  // 4) 색 계열 통일: 나머지는 harmony
+  return "harmony";
 }
 
 // =========================================================
@@ -473,6 +502,8 @@ const App = {
 
     const iconSrc = (GRADE[grade] && GRADE[grade].icon) ? GRADE[grade].icon : ICON.circle;
     const phrase = (GRADE[grade] && GRADE[grade].phrase) ? GRADE[grade].phrase : "";
+    const eduKey = getEduKey(this.state.selectedPants, colorName);
+    const eduLine = EDU_TEXT[eduKey] || EDU_TEXT.contrast;
 
     this.el.statusCallout.innerHTML = `
       <div style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
@@ -486,6 +517,9 @@ const App = {
           </div>
           <div style="color: rgba(15,23,42,.70); font-size:12px; line-height:1.45;">
             ${phrase}
+          </div>
+          <div style="color: rgba(15,23,42,.62); font-size:11px; line-height:1.35;">
+            이유: ${eduLine}
           </div>
         </div>
       </div>

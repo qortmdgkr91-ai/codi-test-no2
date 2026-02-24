@@ -27,8 +27,13 @@ const COLORS = {
   "네이비": { hex:"#1D2B5B" },
   "흰색":   { hex:"#F3F4F6" },
   "진청":   { hex:"#1F3B6F" },
+  "흑청":   { hex:"#16233A" },
   "연청":   { hex:"#82A9D6" },
+  "아이보리": { hex:"#F2EBDD" },
+  "크림":   { hex:"#F6E6C8" },
   "베이지": { hex:"#C7B08B" },
+  "카키":   { hex:"#6B7B4E" },
+  "브라운": { hex:"#6B3F2A" },
   "차콜":   { hex:"#3A3C43" },
   "검정":   { hex:"#111318" }
 };
@@ -100,6 +105,19 @@ const RULES = {
       { color:"흰색", grade:"강추" }
     ]
   },
+  "흑청": {
+    good: [
+      { color:"흰색", grade:"강추" },
+      { color:"노란색", grade:"강추" }
+    ],
+    bad: [
+      { color:"네이비", grade:"비추" }
+    ],
+    meh: [
+      { color:"핑크", grade:"괜찮음" },
+      { color:"베이지", grade:"괜찮음" }
+    ]
+  },
   "연청": {
     good: [
       { color:"녹색", grade:"강추" },
@@ -111,6 +129,32 @@ const RULES = {
     meh: [
       { color:"파란색", grade:"그닥" },
       { color:"네이비", grade:"괜찮음" }
+    ]
+  },
+  "아이보리": {
+    good: [
+      { color:"네이비", grade:"강추" },
+      { color:"파란색", grade:"강추" }
+    ],
+    bad: [
+      { color:"노란색", grade:"그닥" }
+    ],
+    meh: [
+      { color:"녹색", grade:"괜찮음" },
+      { color:"차콜", grade:"괜찮음" }
+    ]
+  },
+  "크림": {
+    good: [
+      { color:"네이비", grade:"강추" },
+      { color:"차콜", grade:"강추" }
+    ],
+    bad: [
+      { color:"노란색", grade:"그닥" }
+    ],
+    meh: [
+      { color:"파란색", grade:"괜찮음" },
+      { color:"핑크", grade:"괜찮음" }
     ]
   },
   "베이지": {
@@ -125,6 +169,32 @@ const RULES = {
     meh: [
       { color:"녹색", grade:"괜찮음" },
       { color:"파란색", grade:"괜찮음" }
+    ]
+  },
+  "카키": {
+    good: [
+      { color:"흰색", grade:"강추" },
+      { color:"네이비", grade:"강추" }
+    ],
+    bad: [
+      { color:"녹색", grade:"비추" }
+    ],
+    meh: [
+      { color:"파란색", grade:"괜찮음" },
+      { color:"노란색", grade:"그닥" }
+    ]
+  },
+  "브라운": {
+    good: [
+      { color:"흰색", grade:"강추" },
+      { color:"파란색", grade:"강추" }
+    ],
+    bad: [
+      { color:"검정", grade:"그닥" }
+    ],
+    meh: [
+      { color:"베이지", grade:"괜찮음" },
+      { color:"노란색", grade:"괜찮음" }
     ]
   },
   "차콜": {
@@ -316,7 +386,7 @@ const App = {
   },
 
   makePantsButtons(){
-    const pantsList = ["진청","연청","베이지","차콜","검정"];
+    const pantsList = ["진청","흑청","연청","아이보리","크림","베이지","카키","브라운","차콜","검정"];
     this.el.pantsButtons.innerHTML = "";
     pantsList.forEach(name=>{
       const b = document.createElement("button");

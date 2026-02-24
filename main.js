@@ -721,7 +721,14 @@ const App = {
     if (!this.state.selectedPants) return;
     const r = RULES[this.state.selectedPants];
     const adjusted = this.adjustListsForSelections(r);
-    this.renderChips(this.el.goodChips, adjusted.good, 4);
+    const goodList = adjusted.good ? adjusted.good.slice() : [];
+    if (goodList.length < 4){
+      const extras = (adjusted.meh || []).filter(it => !goodList.some(g => g.color === it.color));
+      while (goodList.length < 4 && extras.length){
+        goodList.push(extras.shift());
+      }
+    }
+    this.renderChips(this.el.goodChips, goodList, 4);
     let badList = (adjusted.bad && adjusted.bad.length) ? adjusted.bad.slice() : [];
     if (!badList.length && adjusted.meh && adjusted.meh.length) badList = adjusted.meh.slice(0,2);
     badList = this.sortByWeight(badList, this.state.selectedPants, badWeight, null);

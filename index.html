@@ -443,6 +443,23 @@
       box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
     }
 
+    .errorBanner{
+      position: sticky;
+      top: 10px;
+      z-index: 9999;
+      margin: 10px auto;
+      max-width: 980px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      color: #7f1d1d;
+      font-weight: 900;
+      font-size: 14px;
+      display: none;
+      box-shadow: 0 12px 26px rgba(239,68,68,.18);
+    }
+
     /* toast */
     .toast{
       position: fixed;
@@ -480,6 +497,7 @@
 
 <body>
   <canvas id="fxCanvas"></canvas>
+  <div class="errorBanner" id="errorBanner">이미지 문제를 확인 중입니다.</div>
 
   <div class="shell">
     <section class="hero">
@@ -1269,6 +1287,7 @@
           fitPill: document.getElementById("fitPill"),
           topTypePill: document.getElementById("topTypePill"),
           statusCallout: document.getElementById("statusCallout"),
+          errorBanner: document.getElementById("errorBanner"),
           pantsPickBanner: document.getElementById("pantsPickBanner"),
           btnFocusPants: document.getElementById("btnFocusPants"),
           pantsTitle: document.getElementById("pantsTitle"),
@@ -1361,6 +1380,10 @@
             if (this.el && this.el.statusCallout){
               this.el.statusCallout.textContent = "이미지 크기 불일치: " + detail;
             }
+            if (this.el && this.el.errorBanner){
+              this.el.errorBanner.textContent = "이미지 크기 불일치: " + detail;
+              this.el.errorBanner.style.display = "block";
+            }
             return;
           }
           const maskErrors = [];
@@ -1375,12 +1398,20 @@
           if (maskErrors.length){
             this.assetsReady = false;
             this.state.loadError = true;
+            const msg = "이미지 투명도 문제: " + maskErrors.join(" / ");
             if (this.el && this.el.statusCallout){
-              this.el.statusCallout.textContent = "이미지 투명도 문제: " + maskErrors.join(" / ");
+              this.el.statusCallout.textContent = msg;
+            }
+            if (this.el && this.el.errorBanner){
+              this.el.errorBanner.textContent = msg;
+              this.el.errorBanner.style.display = "block";
             }
             return;
           }
           this.assetsReady = true;
+          if (this.el && this.el.errorBanner){
+            this.el.errorBanner.style.display = "none";
+          }
           this.setCanvasSize();
           window.addEventListener("resize", ()=> this.setCanvasSize());
         }catch(e){
@@ -1389,6 +1420,11 @@
           if (this.el && this.el.statusCallout){
             const badSrc = (e && e.src) ? e.src : String(e);
             this.el.statusCallout.textContent = "이미지 로드 실패: " + badSrc;
+          }
+          if (this.el && this.el.errorBanner){
+            const badSrc = (e && e.src) ? e.src : String(e);
+            this.el.errorBanner.textContent = "이미지 로드 실패: " + badSrc;
+            this.el.errorBanner.style.display = "block";
           }
         }
       },

@@ -1227,6 +1227,39 @@
       return { min: minA, max: maxA, nonZero: nonZero, total: total };
     }
 
+    function alphaBoundingBox(img){
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
+      if (!w || !h) return { empty:true, w:0, h:0, minX:0, minY:0, maxX:0, maxY:0 };
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let minX = w, minY = h, maxX = -1, maxY = -1;
+      for (let y = 0; y < h; y++){
+        let rowHas = false;
+        const rowIdx = y * w * 4;
+        for (let x = 0; x < w; x++){
+          const a = data[rowIdx + x * 4 + 3];
+          if (a > 0){
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            rowHas = true;
+          }
+        }
+        if (rowHas){
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+      if (maxX < 0 || maxY < 0){
+        return { empty:true, w:0, h:0, minX:0, minY:0, maxX:0, maxY:0 };
+      }
+      return { empty:false, w: maxX - minX + 1, h: maxY - minY + 1, minX, minY, maxX, maxY };
+    }
+
     function validateMask(name, img){
       const s = sampleAlphaStats(img, 24);
       console.log("alpha", name, s);
@@ -1399,6 +1432,32 @@
             this.assetsReady = false;
             this.state.loadError = true;
             const msg = "이미지 투명도 문제: " + maskErrors.join(" / ");
+            if (this.el && this.el.statusCallout){
+              this.el.statusCallout.textContent = msg;
+            }
+            if (this.el && this.el.errorBanner){
+              this.el.errorBanner.textContent = msg;
+              this.el.errorBanner.style.display = "block";
+            }
+            return;
+          }
+
+          const bboxTop = alphaBoundingBox(this.assets.topBase);
+          const bboxPants = alphaBoundingBox(this.assets.pantsBase);
+          const bboxTopShade = alphaBoundingBox(this.assets.topShade);
+          const bboxPantsShade = alphaBoundingBox(this.assets.pantsShade);
+          console.log("bbox", "top_base", bboxTop);
+          console.log("bbox", "pants_base", bboxPants);
+          console.log("bbox", "top_shade", bboxTopShade);
+          console.log("bbox", "pants_shade", bboxPantsShade);
+          const diffTop = Math.abs(bboxTop.w - bboxTopShade.w) + Math.abs(bboxTop.h - bboxTopShade.h);
+          const diffPants = Math.abs(bboxPants.w - bboxPantsShade.w) + Math.abs(bboxPants.h - bboxPantsShade.h);
+          const diffTopPants = Math.abs(bboxTop.w - bboxPants.w) + Math.abs(bboxTop.h - bboxPants.h);
+          if (!bboxTop.empty && !bboxPants.empty && (diffTop > 6 || diffPants > 6 || diffTopPants > 600)){
+            const msg = `이미지 내용 크기 불일치: top=${bboxTop.w}x${bboxTop.h}, pants=${bboxPants.w}x${bboxPants.h}`;
+            console.error("content size mismatch", msg);
+            this.assetsReady = false;
+            this.state.loadError = true;
             if (this.el && this.el.statusCallout){
               this.el.statusCallout.textContent = msg;
             }

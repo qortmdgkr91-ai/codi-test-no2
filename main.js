@@ -469,6 +469,54 @@ const App = {
     });
   },
 
+  prioritizeColors(list, colors){
+    if (!list || !list.length) return [];
+    if (!colors || !colors.length) return list.slice();
+    const priority = new Map();
+    colors.forEach((c, i)=> priority.set(c, i));
+    return list.slice().sort((a, b)=>{
+      const pa = priority.has(a.color) ? priority.get(a.color) : 999;
+      const pb = priority.has(b.color) ? priority.get(b.color) : 999;
+      return pa - pb;
+    });
+  },
+
+  adjustListsForSelections(rule){
+    const good = rule.good ? rule.good.slice() : [];
+    const bad = rule.bad ? rule.bad.slice() : [];
+    const meh = rule.meh ? rule.meh.slice() : [];
+
+    let boostColors = null;
+    if (this.state.selectedTopType === "셔츠") boostColors = ["흰색","파란색"];
+    else if (this.state.selectedTopType === "후드티" || this.state.selectedTopType === "맨투맨") boostColors = ["차콜","베이지"];
+    else if (this.state.selectedTopType === "반팔티") boostColors = ["흰색","베이지"];
+
+    const goodBoosted = this.prioritizeColors(good, boostColors);
+    const mehBoosted = this.prioritizeColors(meh, boostColors);
+
+    // 약한 페널티: 특정 조합일 때 good 2번째를 meh 1번째와 교체
+    const isOvershirt = this.state.selectedBottomFit === "오버핏" && this.state.selectedTopType === "셔츠";
+    const isSlimHood = this.state.selectedBottomFit === "슬림핏" && this.state.selectedTopType === "후드티";
+    if ((isOvershirt || isSlimHood) && goodBoosted.length > 1 && mehBoosted.length > 0){
+      const tmp = goodBoosted[1];
+      goodBoosted[1] = mehBoosted[0];
+      mehBoosted[0] = tmp;
+    }
+
+    return { good: goodBoosted, bad, meh: mehBoosted };
+  },
+
+  refreshRecommendations(){
+    if (!this.state.selectedPants) return;
+    const r = RULES[this.state.selectedPants];
+    const adjusted = this.adjustListsForSelections(r);
+    this.renderChips(this.el.goodChips, adjusted.good);
+    let badList = (adjusted.bad && adjusted.bad.length) ? adjusted.bad : [];
+    if (!badList.length && adjusted.meh && adjusted.meh.length) badList = adjusted.meh.slice(0,2);
+    this.renderChips(this.el.badChips, badList);
+    this.renderChips(this.el.mehChips, adjusted.meh || []);
+  },
+
   renderChips(el, items){
     el.innerHTML = "";
     if (!this.state.selectedPants){
@@ -526,12 +574,7 @@ const App = {
 
     this.setNeedsPants(false);
 
-    const r = RULES[name];
-    this.renderChips(this.el.goodChips, r.good);
-    let badList = (r.bad && r.bad.length) ? r.bad : [];
-    if (!badList.length && r.meh && r.meh.length) badList = r.meh.slice(0,2);
-    this.renderChips(this.el.badChips, badList);
-    this.renderChips(this.el.mehChips, r.meh || []);
+    this.refreshRecommendations();
 
     this.el.statusCallout.innerHTML = STRINGS.callout.pantsPicked(name);
     this.showToast(STRINGS.toast.pantsSelected(name));
@@ -542,6 +585,7 @@ const App = {
     this.el.fitPill.textContent = "하의 핏: " + name;
     this.updateSelectedButtons(this.el.bottomFitButtons, name);
     this.showToast(`${name} 선택 ✅`);
+    this.refreshRecommendations();
   },
 
   selectTopType(name){
@@ -549,6 +593,7 @@ const App = {
     this.el.topTypePill.textContent = "상의 종류: " + name;
     this.updateSelectedButtons(this.el.topTypeButtons, name);
     this.showToast(`${name} 선택 ✅`);
+    this.refreshRecommendations();
   },
 
   formatWithOption(base, opt){

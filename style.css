@@ -340,6 +340,12 @@ body{
 .pantsButtons.attention .btn:nth-child(4){ animation-delay: .15s; }
 .pantsButtons.attention .btn:nth-child(5){ animation-delay: .20s; }
 
+.pantsButtons .btn.selected{
+  border-color: rgba(79,70,229,.65);
+  box-shadow: 0 14px 30px rgba(79,70,229,.18);
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.88));
+}
+
 @keyframes pantsPulse{
   0%   { transform: translateY(0); box-shadow: 0 10px 24px rgba(15, 23, 42, .06), 0 0 0 0 rgba(79,70,229,.22); }
   50%  { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(15, 23, 42, .08), 0 0 0 6px rgba(79,70,229,.12); }

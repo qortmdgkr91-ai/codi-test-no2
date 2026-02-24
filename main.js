@@ -637,6 +637,7 @@ const App = {
       const b = document.createElement("button");
       b.className = "btn";
       b.type = "button";
+      b.setAttribute("data-color", name);
       b.innerHTML = `<span>${name}</span><span class="swatch" style="background:${COLORS[name].hex}"></span>`;
       b.addEventListener("click", ()=> this.selectPants(name));
       this.el.pantsButtons.appendChild(b);
@@ -840,6 +841,11 @@ const App = {
     this.state.selectedPants = name;
     this.el.statePill.textContent = "하의 선택: " + name;
     this.el.pantsFill.setAttribute("fill", COLORS[name].hex);
+    const btns = this.el.pantsButtons.querySelectorAll("button");
+    btns.forEach(btn => {
+      if (btn.getAttribute("data-color") === name) btn.classList.add("selected");
+      else btn.classList.remove("selected");
+    });
 
     this.state.selectedShirt = null;
     this.el.shirtFill.setAttribute("fill", "transparent");

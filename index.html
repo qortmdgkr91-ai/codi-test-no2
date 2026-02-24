@@ -467,8 +467,8 @@
     }
 
     #baseMan, #baseMan *{ fill:#111; }
-    .topFill{ fill:#9CA3AF; }
-    .bottomFill{ fill:#6B7280; }
+    .topFill{ fill:#9CA3AF; stroke: rgba(15,23,42,.55); stroke-width:2; stroke-linejoin:round; }
+    .bottomFill{ fill:#6B7280; stroke: rgba(15,23,42,.55); stroke-width:2; stroke-linejoin:round; }
 
     @media (prefers-reduced-motion: reduce){
       *, *::before, *::after{
@@ -518,40 +518,50 @@
                   <!-- BASE MAN -->
                   <g id="baseMan">
                     <circle cx="100" cy="28" r="16" />
-                    <rect x="70" y="45" width="60" height="60" rx="12" />
-                    <rect x="82" y="105" width="36" height="14" rx="6" />
+                    <rect x="70" y="46" width="60" height="70" rx="14" />
+                    <rect x="45" y="66" width="110" height="16" rx="8" />
+                    <rect x="82" y="110" width="36" height="12" rx="6" />
                   </g>
 
                   <!-- TOPS -->
                   <g id="top_shirt" style="display:none;">
-                    <rect class="topFill" x="58" y="52" width="84" height="58" rx="10" />
-                    <polygon class="topFill" points="92,52 108,52 100,66" />
+                    <path class="topFill" d="M50 70 L78 52 H122 L150 70 L140 128 H60 Z" />
+                    <path class="topFill" d="M50 70 L30 110 L50 122 L68 92 Z" />
+                    <path class="topFill" d="M150 70 L170 110 L150 122 L132 92 Z" />
+                    <path class="topFill" d="M92 52 L108 52 L100 66 Z" />
                   </g>
                   <g id="top_sweat" style="display:block;">
-                    <rect class="topFill" x="56" y="52" width="88" height="64" rx="12" />
-                    <rect class="topFill" x="56" y="92" width="88" height="10" rx="5" />
+                    <path class="topFill" d="M48 72 L76 52 H124 L152 72 L144 134 H56 Z" />
+                    <rect class="topFill" x="56" y="120" width="88" height="10" rx="5" />
+                    <rect class="topFill" x="28" y="98" width="22" height="12" rx="6" />
+                    <rect class="topFill" x="150" y="98" width="22" height="12" rx="6" />
                   </g>
                   <g id="top_hoodie" style="display:none;">
-                    <rect class="topFill" x="56" y="52" width="88" height="66" rx="12" />
-                    <path class="topFill" d="M78 52 Q100 28 122 52" />
+                    <path class="topFill" d="M48 72 L76 52 H124 L152 72 L144 136 H56 Z" />
+                    <path class="topFill" d="M70 52 Q100 30 130 52 L120 70 H80 Z" />
+                    <rect class="topFill" x="84" y="110" width="32" height="14" rx="7" />
+                    <rect class="topFill" x="28" y="98" width="22" height="12" rx="6" />
+                    <rect class="topFill" x="150" y="98" width="22" height="12" rx="6" />
                   </g>
                   <g id="top_knit" style="display:none;">
-                    <rect class="topFill" x="58" y="52" width="84" height="64" rx="12" />
-                    <rect class="topFill" x="58" y="104" width="84" height="8" rx="4" />
+                    <path class="topFill" d="M52 72 L78 52 H122 L148 72 L140 132 H60 Z" />
+                    <rect class="topFill" x="60" y="118" width="80" height="8" rx="4" />
+                    <rect class="topFill" x="34" y="98" width="20" height="10" rx="5" />
+                    <rect class="topFill" x="146" y="98" width="20" height="10" rx="5" />
                   </g>
 
                   <!-- BOTTOMS -->
                   <g id="bottom_slim" style="display:none;">
-                    <rect class="bottomFill" x="86" y="120" width="28" height="90" rx="10" />
-                    <rect class="bottomFill" x="72" y="120" width="24" height="90" rx="10" />
+                    <path class="bottomFill" d="M78 120 H122 L114 214 H102 L100 154 L98 214 H86 Z" />
+                    <path class="bottomFill" d="M78 120 L62 214 H80 L88 154 L90 214 H104 Z" />
                   </g>
                   <g id="bottom_regular" style="display:block;">
-                    <rect class="bottomFill" x="84" y="120" width="34" height="92" rx="10" />
-                    <rect class="bottomFill" x="62" y="120" width="28" height="92" rx="10" />
+                    <path class="bottomFill" d="M76 120 H124 L116 218 H102 L100 156 L98 218 H84 Z" />
+                    <path class="bottomFill" d="M76 120 L56 218 H76 L88 156 L90 218 H104 Z" />
                   </g>
                   <g id="bottom_wide" style="display:none;">
-                    <rect class="bottomFill" x="84" y="120" width="42" height="96" rx="10" />
-                    <rect class="bottomFill" x="54" y="120" width="36" height="96" rx="10" />
+                    <path class="bottomFill" d="M72 120 H128 L120 222 H98 L96 156 L94 222 H72 Z" />
+                    <path class="bottomFill" d="M72 120 L48 222 H72 L86 156 L90 222 H112 Z" />
                   </g>
                 </svg>
               </div>
@@ -1217,14 +1227,14 @@
 
     function paintTop(selectedTopType, hex){
       const topId = topMap[selectedTopType] || "top_sweat";
-      const el = document.querySelector(`#${topId} .topFill`);
-      if (el) el.setAttribute("fill", hex);
+      const els = document.querySelectorAll(`#${topId} .topFill`);
+      els.forEach(el => el.setAttribute("fill", hex));
     }
 
     function paintBottom(selectedBottomFit, hex){
       const botId = botMap[selectedBottomFit] || "bottom_regular";
-      const el = document.querySelector(`#${botId} .bottomFill`);
-      if (el) el.setAttribute("fill", hex);
+      const els = document.querySelectorAll(`#${botId} .bottomFill`);
+      els.forEach(el => el.setAttribute("fill", hex));
     }
 
     // =========================================================

@@ -1279,6 +1279,18 @@
       return { x: drawX, y: drawY, w: drawW, h: drawH, scale };
     }
 
+    function fitRectWithHeightRatio(bbox, dstX, dstY, dstW, dstH, heightRatio){
+      const srcW = Math.max(1, bbox.w);
+      const srcH = Math.max(1, bbox.h);
+      const targetRatio = Math.max(0.5, Math.min(heightRatio || 0.8, 0.95));
+      const scale = Math.min(dstW / srcW, (dstH * targetRatio) / srcH);
+      const drawW = srcW * scale;
+      const drawH = srcH * scale;
+      const drawX = dstX + (dstW - drawW) / 2;
+      const drawY = dstY + (dstH - drawH) / 2;
+      return { x: drawX, y: drawY, w: drawW, h: drawH, scale };
+    }
+
     // =========================================================
     // App
     // =========================================================
@@ -1506,8 +1518,8 @@
         const maskPants = this.pantsMask || this.assets.pantsBase;
         const bboxTop = safeBBox(this.bboxTop || alphaBoundingBox(maskTop), maskTop);
         const bboxPants = safeBBox(this.bboxPants || alphaBoundingBox(maskPants), maskPants);
-        const topFit = fitRectCentered(bboxTop, topBox.x, topBox.y, topBox.w, topBox.h);
-        const pantsFit = fitRectCentered(bboxPants, pantsBox.x, pantsBox.y, pantsBox.w, pantsBox.h);
+        const topFit = fitRectWithHeightRatio(bboxTop, topBox.x, topBox.y, topBox.w, topBox.h, 0.82);
+        const pantsFit = fitRectWithHeightRatio(bboxPants, pantsBox.x, pantsBox.y, pantsBox.w, pantsBox.h, 0.82);
         const topSilBottom = topFit.y + bboxTop.maxY * topFit.scale;
         const pantsSilTop = pantsFit.y + bboxPants.minY * pantsFit.scale;
         const desiredGap = h * 0.005;

@@ -1507,6 +1507,16 @@
         const bboxPants = safeBBox(this.bboxPants || alphaBoundingBox(maskPants), maskPants);
         const topFit = fitRectCentered(bboxTop, topBox.x, topBox.y, topBox.w, topBox.h);
         const pantsFit = fitRectCentered(bboxPants, pantsBox.x, pantsBox.y, pantsBox.w, pantsBox.h);
+        const topSilBottom = topFit.y + bboxTop.maxY * topFit.scale;
+        const pantsSilTop = pantsFit.y + bboxPants.minY * pantsFit.scale;
+        const desiredGap = h * 0.015;
+        let shift = (topSilBottom + desiredGap) - pantsSilTop;
+        if (Math.abs(shift) > 0.5){
+          const minY = pantsBox.y - bboxPants.minY * pantsFit.scale;
+          const maxY = pantsBox.y + pantsBox.h - (bboxPants.maxY * pantsFit.scale);
+          const nextY = Math.min(Math.max(pantsFit.y + shift, minY), maxY);
+          pantsFit.y = nextY;
+        }
 
         const drawTinted = (maskImg, shadeImg, colorHex, fit, shadeAsMask) => {
           const tmp = document.createElement("canvas");

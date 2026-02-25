@@ -1522,39 +1522,46 @@
         console.log("render", this.state.pantsColor, this.state.topColor);
         ctx.clearRect(0, 0, w, h);
 
-        // 1) 마네킹은 항상 그대로(색 안 물들게)
         ctx.globalCompositeOperation = "source-over";
         ctx.drawImage(this.assets.mannequin, 0, 0, w, h);
 
-        // 2) 옷 1개를 "임시 캔버스"에서만 색칠해서 메인에 얹는 함수
-        const drawTinted = (baseImg, shadeImg, colorHex) => {
+        const TOP_BOX = {
+          dx: w * 0.12,
+          dy: h * 0.02,
+          dw: w * 0.76,
+          dh: h * 0.72
+        };
+
+        const PANTS_BOX = {
+          dx: w * 0.16,
+          dy: h * 0.22,
+          dw: w * 0.68,
+          dh: h * 0.82
+        };
+
+        const drawTinted = (baseImg, shadeImg, colorHex, box) => {
           const tmp = document.createElement("canvas");
           tmp.width = Math.max(1, Math.floor(w));
           tmp.height = Math.max(1, Math.floor(h));
           const t = tmp.getContext("2d");
 
-          // (a) base를 먼저 그린다
           t.clearRect(0, 0, w, h);
           t.globalCompositeOperation = "source-over";
-          t.drawImage(baseImg, 0, 0, w, h);
+          t.drawImage(baseImg, box.dx, box.dy, box.dw, box.dh);
 
-          // (b) base가 있는 곳만 색을 채운다
           t.globalCompositeOperation = "source-in";
           t.fillStyle = colorHex;
-          t.fillRect(0, 0, w, h);
+          t.fillRect(box.dx, box.dy, box.dw, box.dh);
 
-          // (c) shade(명암/질감) 덮기
           t.globalCompositeOperation = "source-over";
-          t.drawImage(shadeImg, 0, 0, w, h);
+          t.drawImage(shadeImg, box.dx, box.dy, box.dw, box.dh);
 
-          // (d) 메인 캔버스에 합성
           ctx.globalCompositeOperation = "source-over";
           ctx.drawImage(tmp, 0, 0, w, h);
         };
 
-        // 3) 바지 → 상의 순서로 얹기(원하시는 레이어 순서 유지)
-        drawTinted(this.assets.pantsBase, this.assets.pantsShade, this.state.pantsColor);
-        drawTinted(this.assets.topBase, this.assets.topShade, this.state.topColor);
+        drawTinted(this.assets.pantsBase, this.assets.pantsShade, this.state.pantsColor, PANTS_BOX);
+        drawTinted(this.assets.topBase, this.assets.topShade, this.state.topColor, TOP_BOX);
       },
 
       showToast(msg){

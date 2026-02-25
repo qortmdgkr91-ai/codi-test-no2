@@ -1507,6 +1507,11 @@
         const bboxPants = safeBBox(this.bboxPants || alphaBoundingBox(maskPants), maskPants);
         const topFit = fitRectCentered(bboxTop, topBox.x, topBox.y, topBox.w, topBox.h);
         const pantsFit = fitRectCentered(bboxPants, pantsBox.x, pantsBox.y, pantsBox.w, pantsBox.h);
+        const pantsScale = 0.86;
+        pantsFit.w *= pantsScale;
+        pantsFit.h *= pantsScale;
+        pantsFit.x += (pantsFit.w / pantsScale - pantsFit.w) / 2;
+        pantsFit.y += (pantsFit.h / pantsScale - pantsFit.h) / 2;
         const topSilBottom = topFit.y + bboxTop.maxY * topFit.scale;
         const pantsSilTop = pantsFit.y + bboxPants.minY * pantsFit.scale;
         const desiredGap = h * 0.015;

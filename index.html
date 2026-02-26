@@ -1310,10 +1310,12 @@
     /* ===========================
        FIX 1) alphaBoundingBox 결과(minX/minY...)용 fit 함수 추가
        =========================== */
-    function fitFromAlphaBBoxCentered(bbox, scale, centerX, centerY){
+    function fitFromAlphaBBoxCentered(bbox, imgW, imgH, scale, centerX, centerY){
       // bbox: {minX,minY,maxX,maxY,w,h}
-      const drawW = bbox.w * scale;
-      const drawH = bbox.h * scale;
+      const fullW = Math.max(1, imgW || bbox.w);
+      const fullH = Math.max(1, imgH || bbox.h);
+      const drawW = fullW * scale;
+      const drawH = fullH * scale;
 
       // bbox의 "콘텐츠 중심"(min/max 기반)을 center에 맞추기
       const contentCx = (bbox.minX + bbox.maxX) / 2;
@@ -1575,8 +1577,22 @@
         const pantsScale0 = targetWaistWidth / Math.max(1, bboxPants.w);
 
         // 2) 중앙 배치
-        const topFit = fitFromAlphaBBoxCentered(bboxTop, topScale0, w * 0.5, h * 0.35);
-        const pantsFit = fitFromAlphaBBoxCentered(bboxPants, pantsScale0, w * 0.5, h * 0.70);
+        const topFit = fitFromAlphaBBoxCentered(
+          bboxTop,
+          maskTop.naturalWidth || maskTop.width,
+          maskTop.naturalHeight || maskTop.height,
+          topScale0,
+          w * 0.5,
+          h * 0.35
+        );
+        const pantsFit = fitFromAlphaBBoxCentered(
+          bboxPants,
+          maskPants.naturalWidth || maskPants.width,
+          maskPants.naturalHeight || maskPants.height,
+          pantsScale0,
+          w * 0.5,
+          h * 0.70
+        );
 
         // 3) 허리선 앵커로 Y 정렬
         const topAnchor = (WAIST_ANCHOR.tops[topKey] ?? 0.78);
